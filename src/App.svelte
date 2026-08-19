@@ -36,7 +36,7 @@
 <div class="app">
   <header class="topbar">
     <div class="brand">
-      <h1>Tratterns</h1>
+      <h1>Trendio</h1>
       <p>Patrones chartistas por tipo de tendencia</p>
     </div>
     <TrendFilter value={selectedTrend} {counts} onchange={handleTrend} />
