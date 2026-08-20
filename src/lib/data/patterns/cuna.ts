@@ -1,13 +1,11 @@
-import { COLORS } from '../../chart/theme';
-import type { Pattern } from '../../types';
-import { dateAt, genCandles, lineAt } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles, lineAt } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
 const p = (bar: number, value: number) => ({ time: d(bar), value });
 
-// Cuña ascendente: soporte lineAt(0, 100, 0.55) y resistencia lineAt(0, 108, 0.40).
-// Los mínimos suben más rápido que los máximos ⇒ las líneas convergen.
 export const cunaAscendente: Pattern = {
   id: 'cuna-ascendente',
   name: 'Cuña ascendente',
@@ -49,11 +47,12 @@ export const cunaAscendente: Pattern = {
       color: COLORS.trend,
       label: 'Resistencia de la cuña',
     },
+    { kind: 'hline', price: 122.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 104, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(40), position: 'aboveBar', shape: 'arrowDown', text: 'Ruptura' },
   ],
 };
 
-// Cuña descendente: resistencia lineAt(0, 120, -0.55) y soporte lineAt(0, 112, -0.40).
 export const cunaDescendente: Pattern = {
   id: 'cuna-descendente',
   name: 'Cuña descendente',
@@ -95,6 +94,8 @@ export const cunaDescendente: Pattern = {
       color: COLORS.trend,
       label: 'Soporte de la cuña',
     },
+    { kind: 'hline', price: 97.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 116, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(40), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
   ],
 };

@@ -1,5 +1,6 @@
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
@@ -8,8 +9,8 @@ export const dobleSuelo: Pattern = {
   id: 'doble-suelo',
   name: 'Doble suelo',
   description:
-    'Dos mínimos consecutivos a un nivel similar separados por un rebote que define la neckline. ' +
-    'La ruptura por encima de la neckline confirma el giro de bajista a alcista. ' +
+    'Dos mínimos consecutivos a un nivel similar separados por un rebote que define la línea de cuello. ' +
+    'La ruptura por encima de la línea de cuello confirma el giro de bajista a alcista. ' +
     'Es la imagen especular del doble techo y anticipa una tendencia alcista.',
   trends: ['alcista'],
   signal: 'reversion',
@@ -27,7 +28,9 @@ export const dobleSuelo: Pattern = {
     ],
   }),
   overlays: [
-    { kind: 'hline', price: 109, style: 'dashed', label: 'Neckline' },
+    { kind: 'hline', price: 109, style: 'dashed', label: 'Línea de cuello' },
+    { kind: 'hline', price: 99, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 118, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(18), position: 'belowBar', shape: 'arrowUp', text: 'Suelo 1' },
     { kind: 'marker', time: d(36), position: 'belowBar', shape: 'arrowUp', text: 'Suelo 2' },
     { kind: 'marker', time: d(44), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },

@@ -1,6 +1,6 @@
-import { COLORS } from '../../chart/theme';
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
@@ -31,6 +31,8 @@ export const envolventeAlcista: Pattern = {
   }),
   overlays: [
     { kind: 'ma', period: 9, color: COLORS.maFast, label: 'SMA 9' },
+    { kind: 'hline', price: 97.8, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 108, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(24), position: 'belowBar', shape: 'arrowUp', text: 'Envolvente' },
   ],
 };
@@ -61,6 +63,8 @@ export const envolventeBajista: Pattern = {
   }),
   overlays: [
     { kind: 'ma', period: 9, color: COLORS.maFast, label: 'SMA 9' },
+    { kind: 'hline', price: 112, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 102, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'arrowDown', text: 'Envolvente' },
   ],
 };

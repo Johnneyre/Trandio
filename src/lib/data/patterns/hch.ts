@@ -1,5 +1,6 @@
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
@@ -9,7 +10,7 @@ export const hch: Pattern = {
   name: 'Hombro-cabeza-hombro',
   description:
     'Tres máximos consecutivos donde el central (la cabeza) es el más alto y los laterales (hombros) quedan a niveles similares. ' +
-    'La línea que une los valles es la neckline: su ruptura a la baja confirma el fin de la tendencia alcista y el inicio de una bajista.',
+    'La línea que une los valles es la línea de cuello: su ruptura a la baja confirma el fin de la tendencia alcista y el inicio de una bajista.',
   trends: ['bajista'],
   signal: 'reversion',
   category: 'reversion',
@@ -28,7 +29,9 @@ export const hch: Pattern = {
     ],
   }),
   overlays: [
-    { kind: 'hline', price: 105, style: 'dashed', label: 'Neckline' },
+    { kind: 'hline', price: 105, style: 'dashed', label: 'Línea de cuello' },
+    { kind: 'hline', price: 112.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 90, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(10), position: 'aboveBar', shape: 'circle', text: 'Hombro' },
     { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'circle', text: 'Cabeza' },
     { kind: 'marker', time: d(38), position: 'aboveBar', shape: 'circle', text: 'Hombro' },
@@ -41,7 +44,7 @@ export const hchInvertido: Pattern = {
   name: 'HCH invertido',
   description:
     'Versión especular del hombro-cabeza-hombro: tres mínimos donde el central es el más profundo. ' +
-    'La ruptura al alza de la neckline confirma el giro de bajista a alcista.',
+    'La ruptura al alza de la línea de cuello confirma el giro de bajista a alcista.',
   trends: ['alcista'],
   signal: 'reversion',
   category: 'reversion',
@@ -60,7 +63,9 @@ export const hchInvertido: Pattern = {
     ],
   }),
   overlays: [
-    { kind: 'hline', price: 115, style: 'dashed', label: 'Neckline' },
+    { kind: 'hline', price: 115, style: 'dashed', label: 'Línea de cuello' },
+    { kind: 'hline', price: 107.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 130, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(10), position: 'belowBar', shape: 'circle', text: 'Hombro' },
     { kind: 'marker', time: d(24), position: 'belowBar', shape: 'circle', text: 'Cabeza' },
     { kind: 'marker', time: d(38), position: 'belowBar', shape: 'circle', text: 'Hombro' },

@@ -1,6 +1,6 @@
-import { COLORS } from '../../chart/theme';
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
@@ -30,8 +30,8 @@ export const soporteResistencia: Pattern = {
     ],
   }),
   overlays: [
-    { kind: 'hline', price: 112, color: COLORS.down, style: 'solid', label: 'Resistencia' },
-    { kind: 'hline', price: 100, color: COLORS.up, style: 'solid', label: 'Soporte' },
+    { kind: 'hline', price: 112, color: COLORS.sr, style: 'solid', label: 'Resistencia' },
+    { kind: 'hline', price: 100, color: COLORS.sr, style: 'solid', label: 'Soporte' },
     { kind: 'marker', time: d(24), position: 'belowBar', shape: 'circle' },
     { kind: 'marker', time: d(30), position: 'aboveBar', shape: 'circle' },
   ],

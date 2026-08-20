@@ -1,5 +1,6 @@
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern, PatternVariant } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
@@ -27,6 +28,8 @@ export const martillo: Pattern = {
     },
   }),
   overlays: [
+    { kind: 'hline', price: 97.2, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 108, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(22), position: 'belowBar', shape: 'arrowUp', text: 'Martillo' },
   ],
 };
@@ -54,19 +57,13 @@ export const estrellaFugaz: Pattern = {
     },
   }),
   overlays: [
+    { kind: 'hline', price: 119.2, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 107, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(22), position: 'aboveBar', shape: 'arrowDown', text: 'Estrella fugaz' },
   ],
 };
 
-export const doji: Pattern = {
-  id: 'doji',
-  name: 'Doji',
-  description:
-    'Apertura y cierre prácticamente iguales: equilibrio total entre compradores y vendedores. ' +
-    'Por sí solo marca indecisión; tras un impulso o en los extremos de un rango suele preceder a un giro del precio.',
-  trends: ['rango', 'alcista', 'bajista'],
-  signal: 'reversion',
-  category: 'vela',
+const dojiBajista: PatternVariant = {
   candles: genCandles({
     seed: 97,
     startDate: START,
@@ -83,4 +80,38 @@ export const doji: Pattern = {
   overlays: [
     { kind: 'marker', time: d(20), position: 'aboveBar', shape: 'circle', text: 'Doji' },
   ],
+};
+
+const dojiAlcista: PatternVariant = {
+  candles: genCandles({
+    seed: 98,
+    startDate: START,
+    spine: [
+      { bar: 0, price: 112 },
+      { bar: 20, price: 100 },
+      { bar: 24, price: 102 },
+      { bar: 34, price: 108 },
+    ],
+    overrides: {
+      20: { open: 100, close: 99.9, high: 101.6, low: 98.1 },
+    },
+  }),
+  overlays: [
+    { kind: 'marker', time: d(20), position: 'belowBar', shape: 'circle', text: 'Doji' },
+  ],
+};
+
+export const doji: Pattern = {
+  id: 'doji',
+  name: 'Doji',
+  description:
+    'Apertura y cierre prácticamente iguales: equilibrio total entre compradores y vendedores. ' +
+    'Por sí solo marca indecisión; tras un impulso o en los extremos de un rango suele preceder a un giro del precio.',
+  trends: ['rango', 'alcista', 'bajista'],
+  signal: 'reversion',
+  category: 'vela',
+  candles: dojiAlcista.candles,
+  overlays: dojiAlcista.overlays,
+  variants: { alcista: dojiAlcista, bajista: dojiBajista },
+  defaultDirection: 'alcista',
 };

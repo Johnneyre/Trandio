@@ -1,12 +1,11 @@
-import { COLORS } from '../../chart/theme';
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
 const p = (bar: number, value: number) => ({ time: d(bar), value });
 
-// Canal alcista: línea media 100 + 0.4·barra, bandas a ±4.
 export const canalAlcista: Pattern = {
   id: 'canal-alcista',
   name: 'Canal alcista',
@@ -39,13 +38,14 @@ export const canalAlcista: Pattern = {
       color: COLORS.trend,
       label: 'Canal alcista',
     },
+    { kind: 'hline', price: 110.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 123, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(13), position: 'belowBar', shape: 'circle' },
     { kind: 'marker', time: d(27), position: 'belowBar', shape: 'circle', text: 'Rebote' },
     { kind: 'marker', time: d(41), position: 'belowBar', shape: 'circle' },
   ],
 };
 
-// Canal bajista: línea media 120 − 0.4·barra, bandas a ±4.
 export const canalBajista: Pattern = {
   id: 'canal-bajista',
   name: 'Canal bajista',
@@ -78,13 +78,14 @@ export const canalBajista: Pattern = {
       color: COLORS.trend,
       label: 'Canal bajista',
     },
+    { kind: 'hline', price: 107, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 95, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(20), position: 'aboveBar', shape: 'circle', text: 'Rebote' },
     { kind: 'marker', time: d(34), position: 'aboveBar', shape: 'circle' },
     { kind: 'marker', time: d(48), position: 'aboveBar', shape: 'circle' },
   ],
 };
 
-// Canal lateral: rango horizontal entre 100 y 110.
 export const canalLateral: Pattern = {
   id: 'canal-lateral',
   name: 'Canal lateral (rango)',
@@ -110,8 +111,10 @@ export const canalLateral: Pattern = {
     ],
   }),
   overlays: [
-    { kind: 'hline', price: 110, color: COLORS.down, style: 'dashed', label: 'Resistencia' },
-    { kind: 'hline', price: 100, color: COLORS.up, style: 'dashed', label: 'Soporte' },
+    { kind: 'hline', price: 110, color: COLORS.sr, style: 'dashed', label: 'Resistencia' },
+    { kind: 'hline', price: 100, color: COLORS.sr, style: 'dashed', label: 'Soporte' },
+    { kind: 'hline', price: 98, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 109, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'circle' },
     { kind: 'marker', time: d(32), position: 'belowBar', shape: 'circle' },
   ],

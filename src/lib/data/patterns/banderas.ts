@@ -1,12 +1,11 @@
-import { COLORS } from '../../chart/theme';
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
 const p = (bar: number, value: number) => ({ time: d(bar), value });
 
-// Mástil (0→11) + bandera: mini-canal contratendencia con pendiente −0.3/barra.
 export const bandera: Pattern = {
   id: 'bandera',
   name: 'Bandera',
@@ -48,6 +47,8 @@ export const bandera: Pattern = {
       color: COLORS.trend,
       label: 'Bandera',
     },
+    { kind: 'hline', price: 115, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 137, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(28), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
   ],
 };

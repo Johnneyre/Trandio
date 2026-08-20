@@ -1,5 +1,6 @@
-import type { Pattern } from '../../types';
-import { dateAt, genCandles } from '../candleFactory';
+import { COLORS } from '$lib/chart/theme';
+import type { Pattern } from '$lib/types';
+import { dateAt, genCandles } from '$lib/data/candleFactory';
 
 const START = '2024-01-01';
 const d = (bar: number) => dateAt(START, bar);
@@ -8,8 +9,8 @@ export const dobleTecho: Pattern = {
   id: 'doble-techo',
   name: 'Doble techo',
   description:
-    'Dos máximos consecutivos a un nivel similar separados por un valle que define la neckline. ' +
-    'Cuando el precio rompe por debajo de la neckline se confirma el giro de alcista a bajista. ' +
+    'Dos máximos consecutivos a un nivel similar separados por un valle que define la línea de cuello. ' +
+    'Cuando el precio rompe por debajo de la línea de cuello se confirma el giro de alcista a bajista. ' +
     'Es uno de los patrones de reversión más fiables para anticipar una tendencia bajista.',
   trends: ['bajista'],
   signal: 'reversion',
@@ -27,7 +28,9 @@ export const dobleTecho: Pattern = {
     ],
   }),
   overlays: [
-    { kind: 'hline', price: 109, style: 'dashed', label: 'Neckline' },
+    { kind: 'hline', price: 109, style: 'dashed', label: 'Línea de cuello' },
+    { kind: 'hline', price: 119, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
+    { kind: 'hline', price: 100, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(18), position: 'aboveBar', shape: 'arrowDown', text: 'Techo 1' },
     { kind: 'marker', time: d(36), position: 'aboveBar', shape: 'arrowDown', text: 'Techo 2' },
     { kind: 'marker', time: d(44), position: 'aboveBar', shape: 'arrowDown', text: 'Ruptura' },
