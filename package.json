@@ -19,6 +19,8 @@
     "vite": "^8.2.0"
   },
   "dependencies": {
-    "lightweight-charts": "^5.2.1"
+    "@tailwindcss/vite": "^4.3.3",
+    "lightweight-charts": "^5.2.1",
+    "tailwindcss": "^4.3.3"
   }
 }
