@@ -1,102 +1,64 @@
 <script lang="ts">
-  import PatternDetail from './lib/components/PatternDetail.svelte';
-  import PatternList from './lib/components/PatternList.svelte';
-  import TrendFilter from './lib/components/TrendFilter.svelte';
-  import { PATTERNS } from './lib/data/patterns';
-  import type { Trend } from './lib/types';
+  import PatternDetail from '$lib/components/PatternDetail.svelte';
+  import PatternList from '$lib/components/PatternList.svelte';
+  import TrendFilter from '$lib/components/TrendFilter.svelte';
+  import { PATTERNS } from '$lib/data/patterns';
+  import type { Trend } from '$lib/types';
 
   let selectedTrend = $state<Trend | null>(null);
+  let search = $state('');
   let selectedId = $state<string>(PATTERNS[0].id);
 
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '');
+
   const filtered = $derived(
-    selectedTrend === null
-      ? PATTERNS
-      : PATTERNS.filter((p) => p.trends.includes(selectedTrend as Trend)),
+    PATTERNS.filter(
+      (p) =>
+        (selectedTrend === null || p.trends.includes(selectedTrend as Trend)) &&
+        (search.trim() === '' || normalize(p.name).includes(normalize(search))),
+    ),
   );
 
-  // Si el patrón seleccionado sale del filtro, cae al primero de la lista.
   const selected = $derived(filtered.find((p) => p.id === selectedId) ?? filtered[0] ?? null);
 
   const counts = {
-    todos: PATTERNS.length,
     alcista: PATTERNS.filter((p) => p.trends.includes('alcista')).length,
     bajista: PATTERNS.filter((p) => p.trends.includes('bajista')).length,
     rango: PATTERNS.filter((p) => p.trends.includes('rango')).length,
   };
-
-  function handleTrend(t: Trend | null) {
-    selectedTrend = t;
-  }
-
-  function handleSelect(id: string) {
-    selectedId = id;
-  }
 </script>
 
-<div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <h1>Trendio</h1>
-      <p>Patrones chartistas por tipo de tendencia</p>
+<div class="mx-auto flex max-w-[1560px] flex-col gap-5 px-6 py-5">
+  <header
+    class="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4"
+  >
+    <div>
+      <h1 class="text-2xl font-bold tracking-wide">Trendio</h1>
+      <p class="mt-0.5 text-base text-muted">Patrones chartistas por tipo de tendencia</p>
     </div>
-    <TrendFilter value={selectedTrend} {counts} onchange={handleTrend} />
+    <TrendFilter value={selectedTrend} {counts} onchange={(t) => (selectedTrend = t)} />
   </header>
 
-  <main>
-    <aside>
-      <PatternList patterns={filtered} selectedId={selected?.id ?? null} onselect={handleSelect} />
+  <main class="grid items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+    <aside
+      class="flex flex-col gap-3 lg:sticky lg:top-4 lg:max-h-[calc(100vh-40px)] lg:overflow-y-auto lg:pr-1"
+    >
+      <input
+        type="search"
+        placeholder="Buscar patrón…"
+        aria-label="Buscar patrón"
+        class="w-full rounded-lg border border-border bg-panel px-3.5 py-2.5 text-base placeholder:text-muted focus:border-accent focus:outline-none"
+        bind:value={search}
+      />
+      <PatternList patterns={filtered} selectedId={selected?.id ?? null} onselect={(id) => (selectedId = id)} />
     </aside>
-    <section>
+
+    <section class="flex min-w-0 flex-col gap-4">
       <PatternDetail pattern={selected} />
     </section>
   </main>
 </div>
-
-<style>
-  .app {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 20px 24px 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .brand h1 {
-    margin: 0;
-    font-size: 1.4rem;
-    letter-spacing: 0.02em;
-  }
-  .brand p {
-    margin: 2px 0 0;
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-  main {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 20px;
-    align-items: start;
-  }
-  aside {
-    max-height: calc(100vh - 140px);
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-  @media (max-width: 900px) {
-    main {
-      grid-template-columns: 1fr;
-    }
-    aside {
-      max-height: 320px;
-    }
-  }
-</style>
