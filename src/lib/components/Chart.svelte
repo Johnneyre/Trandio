@@ -1,33 +1,36 @@
 <script lang="ts">
-  import { CandlestickSeries, createChart } from 'lightweight-charts';
-  import { applyOverlays } from '../chart/overlays';
-  import { candleSeriesOptions, chartOptions } from '../chart/theme';
-  import type { Pattern } from '../types';
+  import { CandlestickSeries, LineStyle, createChart } from 'lightweight-charts';
+  import { composePatterns } from '$lib/chart/compose';
+  import { applyOverlays } from '$lib/chart/overlays';
+  import { COLORS, candleSeriesOptions, chartOptions } from '$lib/chart/theme';
+  import type { Pattern } from '$lib/types';
 
-  let { pattern }: { pattern: Pattern } = $props();
+  let { patterns }: { patterns: Pattern[] } = $props();
   let container: HTMLDivElement;
 
-  // Se recrea el chart completo al cambiar de patrón: es barato (~60 velas) y
-  // evita gestionar la limpieza de series/markers/pricelines del patrón anterior.
+  const spec = $derived(composePatterns(patterns));
+
   $effect(() => {
-    const current = pattern;
+    const current = spec;
     const chart = createChart(container, { ...chartOptions, autoSize: true });
     const series = chart.addSeries(CandlestickSeries, candleSeriesOptions);
-    series.setData(current.candles.map((c) => ({ ...c, time: c.time })));
+    series.setData(current.candles.map((c) => ({ ...c })));
+    const lastCandle = current.candles[current.candles.length - 1];
+    series.createPriceLine({
+      price: lastCandle.close,
+      color: lastCandle.close >= lastCandle.open ? COLORS.up : COLORS.down,
+      lineWidth: 1,
+      lineStyle: LineStyle.Dashed,
+      axisLabelVisible: true,
+      title: 'Precio',
+    });
     applyOverlays(chart, series, current);
     chart.timeScale().fitContent();
     return () => chart.remove();
   });
 </script>
 
-<div class="chart" bind:this={container}></div>
-
-<style>
-  .chart {
-    width: 100%;
-    height: clamp(360px, 52vh, 560px);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-</style>
+<div
+  class="h-[clamp(440px,60vh,760px)] w-full overflow-hidden rounded-lg border border-border"
+  bind:this={container}
+></div>
