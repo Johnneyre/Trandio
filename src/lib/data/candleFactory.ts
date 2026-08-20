@@ -1,18 +1,16 @@
-import type { Candle } from '../types';
+import type { Candle } from '$lib/types';
 
-/** PRNG determinístico: misma seed ⇒ misma secuencia en cada carga. */
 export function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
+    a = Math.trunc(a);
+    a = Math.trunc(a + 0x6d2b79f5);
     let t = Math.imul(a ^ (a >>> 15), 1 | a);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
-/** Pivote del patrón: precio objetivo en una barra concreta. */
 export interface SpinePoint {
   bar: number;
   price: number;
@@ -20,13 +18,11 @@ export interface SpinePoint {
 
 const DAY_MS = 86_400_000;
 
-/** Fecha 'yyyy-mm-dd' de la barra `bar` contando días desde `startDate`. */
 export function dateAt(startDate: string, bar: number): string {
   const t = new Date(`${startDate}T00:00:00Z`).getTime() + bar * DAY_MS;
   return new Date(t).toISOString().slice(0, 10);
 }
 
-/** Valor de una recta definida por un punto (b0, p0) y una pendiente por barra. */
 export function lineAt(b0: number, p0: number, slope: number, bar: number): number {
   return p0 + slope * (bar - b0);
 }
@@ -48,14 +44,10 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export interface GenOptions {
   seed: number;
-  /** Pivotes; se interpola linealmente entre ellos. La última barra define el largo. */
   spine: SpinePoint[];
   startDate: string;
-  /** Amplitud relativa del ruido del cierre (p. ej. 0.004). */
   noise?: number;
-  /** Amplitud relativa de las mechas (p. ej. 0.005). */
   wick?: number;
-  /** Velas clave forzadas a mano, por índice de barra (esencial en patrones de velas). */
   overrides?: Record<number, Partial<Omit<Candle, 'time'>>>;
 }
 

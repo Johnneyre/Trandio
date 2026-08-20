@@ -1,5 +1,7 @@
 export type Trend = 'alcista' | 'bajista' | 'rango';
 
+export type Direction = 'alcista' | 'bajista';
+
 export type Signal = 'continuacion' | 'reversion' | 'indicador' | 'nivel';
 
 export type PatternCategory =
@@ -10,7 +12,6 @@ export type PatternCategory =
   | 'indicador'
   | 'nivel';
 
-/** `time` siempre en formato 'yyyy-mm-dd' (BusinessDay de lightweight-charts). */
 export interface Candle {
   time: string;
   open: number;
@@ -51,6 +52,7 @@ export type Overlay =
       b: PricePoint;
       c: PricePoint;
       extendToTime: string;
+      variant?: 'andrews' | 'schiff' | 'schiff-mod';
       color?: string;
       label?: string;
     }
@@ -77,6 +79,11 @@ export type Overlay =
       text?: string;
     };
 
+export interface PatternVariant {
+  candles: Candle[];
+  overlays: Overlay[];
+}
+
 export interface Pattern {
   id: string;
   name: string;
@@ -86,4 +93,6 @@ export interface Pattern {
   category: PatternCategory;
   candles: Candle[];
   overlays: Overlay[];
+  variants?: Record<Direction, PatternVariant>;
+  defaultDirection?: Direction;
 }

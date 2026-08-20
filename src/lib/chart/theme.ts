@@ -7,14 +7,14 @@ import {
   type DeepPartial,
 } from 'lightweight-charts';
 
-/** Colores compartidos entre el chart y la UI (badges, leyenda). */
 export const COLORS = {
   up: '#26a69a',
   down: '#ef5350',
-  neutral: '#787b86',
+  neutral: '#9aa0ab',
   trend: '#2962ff',
   maFast: '#f7a600',
   maSlow: '#b39ddb',
+  sr: '#ffca28',
   bg: '#131722',
   border: '#2a2e39',
   text: '#d1d4dc',
@@ -24,7 +24,7 @@ export const chartOptions: DeepPartial<ChartOptions> = {
   layout: {
     background: { type: ColorType.Solid, color: COLORS.bg },
     textColor: COLORS.text,
-    fontSize: 12,
+    fontSize: 15,
     fontFamily: "'Trebuchet MS', Roboto, -apple-system, sans-serif",
   },
   grid: {
@@ -46,4 +46,6 @@ export const candleSeriesOptions: CandlestickSeriesPartialOptions = {
   borderVisible: false,
   wickUpColor: COLORS.up,
   wickDownColor: COLORS.down,
+  priceLineVisible: false,
+  lastValueVisible: false,
 };

@@ -1,8 +1,7 @@
-import type { Candle, PricePoint } from '../types';
+import type { Candle, PricePoint } from '$lib/types';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-/** Media móvil simple sobre los cierres; empieza en la barra `period - 1`. */
 export function sma(candles: Candle[], period: number): PricePoint[] {
   const out: PricePoint[] = [];
   let sum = 0;
@@ -16,7 +15,6 @@ export function sma(candles: Candle[], period: number): PricePoint[] {
   return out;
 }
 
-/** Media móvil exponencial sobre los cierres; arranca con la SMA inicial. */
 export function ema(candles: Candle[], period: number): PricePoint[] {
   if (candles.length < period) return [];
   const k = 2 / (period + 1);
