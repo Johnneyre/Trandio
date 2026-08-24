@@ -10,34 +10,44 @@ import {
 export const COLORS = {
   up: '#26a69a',
   down: '#ef5350',
-  neutral: '#9aa0ab',
+  neutral: 'rgba(255, 255, 255, 0.5)',
   trend: '#2962ff',
   maFast: '#f7a600',
   maSlow: '#b39ddb',
   sr: '#ffca28',
-  bg: '#131722',
-  border: '#2a2e39',
-  text: '#d1d4dc',
+  bg: '#0a0a0a',
+  border: 'rgba(255, 255, 255, 0.12)',
+  text: 'rgba(255, 255, 255, 0.56)',
 } as const;
 
 export const chartOptions: DeepPartial<ChartOptions> = {
   layout: {
     background: { type: ColorType.Solid, color: COLORS.bg },
     textColor: COLORS.text,
-    fontSize: 15,
-    fontFamily: "'Trebuchet MS', Roboto, -apple-system, sans-serif",
+    fontSize: 13,
+    fontFamily: "'Inter Variable', Inter, system-ui, sans-serif",
   },
   grid: {
-    vertLines: { color: 'rgba(240, 243, 250, 0.06)', style: LineStyle.Dotted },
-    horzLines: { color: 'rgba(240, 243, 250, 0.06)', style: LineStyle.Dotted },
+    vertLines: { color: 'rgba(255, 255, 255, 0.06)', style: LineStyle.Dotted },
+    horzLines: { color: 'rgba(255, 255, 255, 0.06)', style: LineStyle.Dotted },
   },
   crosshair: {
     mode: CrosshairMode.Magnet,
-    vertLine: { color: '#758696', style: LineStyle.Dashed, labelBackgroundColor: '#2a2e39' },
-    horzLine: { color: '#758696', style: LineStyle.Dashed, labelBackgroundColor: '#2a2e39' },
+    vertLine: {
+      color: 'rgba(255, 255, 255, 0.36)',
+      style: LineStyle.Dashed,
+      labelBackgroundColor: '#262626',
+    },
+    horzLine: {
+      color: 'rgba(255, 255, 255, 0.36)',
+      style: LineStyle.Dashed,
+      labelBackgroundColor: '#262626',
+    },
   },
   rightPriceScale: { borderColor: COLORS.border },
-  timeScale: { borderColor: COLORS.border, rightOffset: 3 },
+  timeScale: { borderColor: COLORS.border, rightOffset: 3, fixLeftEdge: true },
+  handleScroll: { mouseWheel: false, vertTouchDrag: false },
+  handleScale: { mouseWheel: false, pinch: true },
 };
 
 export const candleSeriesOptions: CandlestickSeriesPartialOptions = {

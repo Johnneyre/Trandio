@@ -1,16 +1,6 @@
-import type { Candle, Pattern } from '$lib/types';
-import { dateAt } from '$lib/data/candleFactory';
-
-export interface ChartSegment {
-  pattern: Pattern;
-  startBar: number;
-  scale: number;
-}
-
-export interface ChartSpec {
-  candles: Candle[];
-  segments: ChartSegment[];
-}
+import type { Candle, Pattern } from "$lib/types";
+import { dateAt } from "$lib/data/candleFactory";
+import type { ChartSegment, ChartSpec } from "./types";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const COMPOSE_START = '2024-01-01';

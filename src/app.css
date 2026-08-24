@@ -1,20 +1,32 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter';
 
 @theme {
-  --color-bg: #0c0e15;
-  --color-panel: #131722;
-  --color-hover: #1e222d;
-  --color-border: #2a2e39;
-  --color-text: #d1d4dc;
-  --color-muted: #9aa0ab;
+  --color-bg: #0a0a0a;
+  --color-ink: rgb(255 255 255 / 92%);
+  --color-ink-2: rgb(255 255 255 / 70%);
+  --color-ink-3: rgb(255 255 255 / 56%);
+  --color-border: rgb(255 255 255 / 10%);
+  --color-border-strong: rgb(255 255 255 / 18%);
+  --color-fill: rgb(255 255 255 / 6%);
+  --color-hover: rgb(255 255 255 / 9%);
+  --color-active: rgb(255 255 255 / 13%);
   --color-accent: #2962ff;
+  --color-accent-soft: #8ab4ff;
   --color-up: #26a69a;
   --color-down: #ef5350;
   --color-warn: #ffca28;
   --color-ma-fast: #f7a600;
   --color-ma-slow: #b39ddb;
 
-  --font-sans: 'Trebuchet MS', Roboto, -apple-system, 'Segoe UI', sans-serif;
+  --color-chip-up: color-mix(in srgb, var(--color-up) 15%, var(--color-bg));
+  --color-chip-down: color-mix(in srgb, var(--color-down) 15%, var(--color-bg));
+  --color-chip-warn: color-mix(in srgb, var(--color-warn) 15%, var(--color-bg));
+  --color-chip-accent: color-mix(in srgb, var(--color-accent) 20%, var(--color-bg));
+  --color-chip-ma-fast: color-mix(in srgb, var(--color-ma-fast) 15%, var(--color-bg));
+  --color-chip-ma-slow: color-mix(in srgb, var(--color-ma-slow) 15%, var(--color-bg));
+
+  --font-sans: 'Inter Variable', Inter, system-ui, 'Segoe UI', sans-serif;
 }
 
 html {
@@ -24,10 +36,15 @@ html {
 
 body {
   background: var(--color-bg);
-  color: var(--color-text);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 ::-webkit-scrollbar {
@@ -35,7 +52,7 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: rgb(255 255 255 / 15%);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-track {
