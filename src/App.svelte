@@ -37,7 +37,7 @@
     class="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4"
   >
     <div>
-      <h1 class="text-2xl font-bold tracking-wide">Trendio</h1>
+      <h1 class="text-2xl font-bold tracking-wide">Trandio</h1>
       <p class="mt-0.5 text-base text-muted">Patrones chartistas por tipo de tendencia</p>
     </div>
     <TrendFilter value={selectedTrend} {counts} onchange={(t) => (selectedTrend = t)} />
