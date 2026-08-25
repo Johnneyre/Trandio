@@ -1,14 +1,16 @@
 <script lang="ts">
   import PatternDetail from "$lib/components/PatternDetail.svelte";
   import PatternList from "$lib/components/PatternList.svelte";
+  import Playground from "$lib/components/Playground.svelte";
   import TrendFilter from "$lib/components/TrendFilter.svelte";
   import { PATTERNS } from "$lib/data/patterns";
   import type { Trend } from "$lib/types";
 
+  let view = $state<"patrones" | "playground">("patrones");
   let selectedTrend = $state<Trend | null>(null);
   let search = $state("");
   let selectedId = $state<string>(PATTERNS[0].id);
-  let detailEl: HTMLElement | undefined;
+  let detailEl = $state<HTMLElement>();
 
   function handleSelect(id: string) {
     selectedId = id;
@@ -43,35 +45,69 @@
       <h1 class="text-2xl font-semibold tracking-[-0.01em]">Trandio</h1>
       <p class="mt-1 text-[15px] text-ink-3">Patrones chartistas por tipo de tendencia</p>
     </div>
-    <TrendFilter value={selectedTrend} {counts} onchange={(t) => (selectedTrend = t)} />
+    <div class="flex flex-wrap items-center gap-3">
+      {#if view === "patrones"}
+        <TrendFilter value={selectedTrend} {counts} onchange={(t) => (selectedTrend = t)} />
+      {/if}
+      <div class="flex gap-0.5 rounded-lg border border-border p-0.5" role="group" aria-label="Vista">
+        <button
+          type="button"
+          class="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors {view ===
+          'patrones'
+            ? 'bg-active text-ink'
+            : 'text-ink-3 hover:bg-fill'}"
+          aria-pressed={view === "patrones"}
+          onclick={() => (view = "patrones")}
+        >
+          Patrones
+        </button>
+        <button
+          type="button"
+          class="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors {view ===
+          'playground'
+            ? 'bg-active text-ink'
+            : 'text-ink-3 hover:bg-fill'}"
+          aria-pressed={view === "playground"}
+          onclick={() => (view = "playground")}
+        >
+          Playground
+        </button>
+      </div>
+    </div>
   </header>
 
-  <main class="grid items-start gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-    <aside class="flex flex-col gap-3 max-lg:order-2 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-226px)]">
-      <input
-        type="search"
-        placeholder="Buscar patrón…"
-        aria-label="Buscar patrón"
-        class="w-full shrink-0 rounded-lg bg-fill px-3.5 py-2.5 text-base text-ink placeholder:text-ink-3"
-        bind:value={search}
-      />
-      <p class="px-3 text-[13px] text-ink-3" role="status" aria-atomic="true">
-        {filtered.length}
-        {filtered.length === 1 ? "patrón" : "patrones"}
-      </p>
-      <div class="lg:-m-1 lg:min-h-0 lg:overflow-y-auto lg:p-1">
-        <PatternList
-          patterns={filtered}
-          selectedId={selected?.id ?? null}
-          {search}
-          onselect={handleSelect}
-          onclearsearch={() => (search = "")}
+  {#if view === "patrones"}
+    <main class="grid items-start gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <aside class="flex flex-col gap-3 max-lg:order-2 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-226px)]">
+        <input
+          type="search"
+          placeholder="Buscar patrón…"
+          aria-label="Buscar patrón"
+          class="w-full shrink-0 rounded-lg bg-fill px-3.5 py-2.5 text-base text-ink placeholder:text-ink-3"
+          bind:value={search}
         />
-      </div>
-    </aside>
+        <p class="px-3 text-[13px] text-ink-3" role="status" aria-atomic="true">
+          {filtered.length}
+          {filtered.length === 1 ? "patrón" : "patrones"}
+        </p>
+        <div class="lg:-m-1 lg:min-h-0 lg:overflow-y-auto lg:p-1">
+          <PatternList
+            patterns={filtered}
+            selectedId={selected?.id ?? null}
+            {search}
+            onselect={handleSelect}
+            onclearsearch={() => (search = "")}
+          />
+        </div>
+      </aside>
 
-    <section class="flex min-w-0 scroll-mt-4 flex-col gap-5 max-lg:order-1" bind:this={detailEl}>
-      <PatternDetail pattern={selected} />
-    </section>
-  </main>
+      <section class="flex min-w-0 scroll-mt-4 flex-col gap-5 max-lg:order-1" bind:this={detailEl}>
+        <PatternDetail pattern={selected} />
+      </section>
+    </main>
+  {:else}
+    <main>
+      <Playground />
+    </main>
+  {/if}
 </div>

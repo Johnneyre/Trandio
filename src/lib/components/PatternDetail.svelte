@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { COLORS } from "$lib/chart/theme";
-  import type { Direction, Overlay, Pattern } from "$lib/types";
+  import { composePatterns } from "$lib/chart/compose";
+  import { overlayLegend } from "$lib/chart/legend";
+  import type { Direction, Pattern } from "$lib/types";
   import Badges from "./Badges.svelte";
   import Chart from "./Chart.svelte";
 
@@ -18,20 +19,9 @@
     return variant ? { ...pattern, candles: variant.candles, overlays: variant.overlays } : pattern;
   });
 
-  const DEFAULT_COLOR: Record<Overlay["kind"], string> = {
-    trendline: COLORS.trend,
-    channel: COLORS.trend,
-    pitchfork: COLORS.maSlow,
-    ma: COLORS.maFast,
-    hline: COLORS.neutral,
-    marker: COLORS.maFast,
-  };
+  const spec = $derived(chartPattern === null ? null : composePatterns([chartPattern]));
 
-  const legend = $derived(
-    (chartPattern?.overlays ?? [])
-      .filter((ov): ov is Overlay & { label: string } => ov.kind !== "marker" && "label" in ov && !!ov.label)
-      .map((ov) => ({ label: ov.label, color: ov.color ?? DEFAULT_COLOR[ov.kind] })),
-  );
+  const legend = $derived(overlayLegend(chartPattern?.overlays ?? []));
 
   const chartLabel = $derived.by(() => {
     if (pattern === null) return "";
@@ -43,13 +33,13 @@
   });
 </script>
 
-{#if pattern === null || chartPattern === null}
+{#if pattern === null || spec === null}
   <div class="grid h-[clamp(440px,60vh,760px)] place-items-center rounded-lg border border-border">
     <p class="text-base text-ink-3">Selecciona un patrón para verlo en el gráfico.</p>
   </div>
 {:else}
   <div class="relative">
-    <Chart patterns={[chartPattern]} label={chartLabel} />
+    <Chart {spec} label={chartLabel} />
     {#if pattern.variants}
       <div
         class="absolute top-3 left-3 z-10 flex gap-0.5 rounded-lg border border-border bg-bg/90 p-0.5"

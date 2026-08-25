@@ -12,8 +12,10 @@ export type PatternCategory =
   | 'indicador'
   | 'nivel';
 
+export type TimeValue = string | number;
+
 export interface Candle {
-  time: string;
+  time: TimeValue;
   open: number;
   high: number;
   low: number;
@@ -21,7 +23,7 @@ export interface Candle {
 }
 
 export interface PricePoint {
-  time: string;
+  time: TimeValue;
   value: number;
 }
 
@@ -72,7 +74,7 @@ export type Overlay =
     }
   | {
       kind: 'marker';
-      time: string;
+      time: TimeValue;
       position: 'aboveBar' | 'belowBar';
       shape: MarkerShape;
       color?: string;
@@ -81,6 +83,26 @@ export type Overlay =
 
 export interface PatternVariant {
   candles: Candle[];
+  overlays: Overlay[];
+}
+
+export interface CsvMeta {
+  rows: number;
+  skipped: number;
+  intervalSec: number;
+  from: number;
+  to: number;
+}
+
+export type CsvResult =
+  | { ok: true; candles: Candle[]; maOverlays: Overlay[]; meta: CsvMeta }
+  | { ok: false; error: string };
+
+export interface Detection {
+  id: string;
+  patternId: string;
+  from: TimeValue;
+  to: TimeValue;
   overlays: Overlay[];
 }
 

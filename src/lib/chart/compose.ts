@@ -1,6 +1,6 @@
 import type { Candle, Pattern } from "$lib/types";
 import { dateAt } from "$lib/data/candleFactory";
-import type { ChartSegment, ChartSpec } from "./types";
+import type { ChartPattern, ChartSegment, ChartSpec } from "./types";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const COMPOSE_START = '2024-01-01';
@@ -29,4 +29,11 @@ export function composePatterns(patterns: Pattern[]): ChartSpec {
   }
 
   return { candles, segments };
+}
+
+export function composeUpload(upload: ChartPattern): ChartSpec {
+  return {
+    candles: upload.candles,
+    segments: [{ pattern: upload, startBar: 0, scale: 1 }],
+  };
 }

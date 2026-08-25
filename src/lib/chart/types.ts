@@ -1,8 +1,10 @@
 import type { IPriceLine, ISeriesApi } from "lightweight-charts";
 import type { Candle, LineStyleKind, Pattern } from "$lib/types";
 
+export type ChartPattern = Pick<Pattern, "candles" | "overlays">;
+
 export interface ChartSegment {
-  pattern: Pattern;
+  pattern: ChartPattern;
   startBar: number;
   scale: number;
 }

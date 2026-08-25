@@ -8,7 +8,7 @@ import {
   type SeriesMarker,
   type Time,
 } from "lightweight-charts";
-import type { LineStyleKind, MarkerShape, PricePoint } from "$lib/types";
+import type { LineStyleKind, MarkerShape, PricePoint, TimeValue } from "$lib/types";
 import type { ChartSegment, ChartSpec, LineOpts, OverlayHandles, OverlayOptions } from "./types";
 import { ema, sma } from "./indicators";
 import { COLORS } from "./theme";
@@ -81,7 +81,7 @@ function applySegment(
   const { pattern, startBar, scale } = seg;
   const lastLocalBar = pattern.candles.length - 1;
 
-  const localBarOf = (time: string) => pattern.candles.findIndex((c) => c.time === time);
+  const localBarOf = (time: TimeValue) => pattern.candles.findIndex((c) => c.time === time);
   const pointAt = (localBar: number, value: number): PricePoint => ({
     time: spec.candles[startBar + localBar].time,
     value: value * scale,

@@ -5,20 +5,31 @@
     createChart,
     type IChartApi,
     type ISeriesApi,
+    type Time,
   } from "lightweight-charts";
-  import { composePatterns } from "$lib/chart/compose";
   import { applyOverlays } from "$lib/chart/overlays";
   import { COLORS, candleSeriesOptions, chartOptions } from "$lib/chart/theme";
-  import type { Pattern } from "$lib/types";
+  import type { ChartSpec } from "$lib/chart/types";
 
-  let { patterns, label }: { patterns: Pattern[]; label?: string } = $props();
+  let {
+    spec,
+    label,
+    class: className = "h-[clamp(440px,60vh,760px)]",
+  }: { spec: ChartSpec; label: string; class?: string } = $props();
   let container: HTMLDivElement;
-
-  const spec = $derived(composePatterns(patterns));
-  const ariaLabel = $derived(label ?? `Gráfico de velas: ${patterns.map((p) => p.name).join(", ")}`);
 
   let chart: IChartApi | undefined;
   let series: ISeriesApi<"Candlestick"> | undefined;
+
+  function pricePrecision(candles: ChartSpec["candles"]): number {
+    let max = 2;
+    for (const c of candles.slice(0, 40)) {
+      const s = String(c.close);
+      const i = s.indexOf(".");
+      if (i !== -1) max = Math.max(max, Math.min(s.length - i - 1, 6));
+    }
+    return max;
+  }
 
   $effect(() => {
     chart = createChart(container, { ...chartOptions, autoSize: true });
@@ -34,7 +45,14 @@
   $effect(() => {
     const current = spec;
     if (chart === undefined || series === undefined) return;
-    series.setData(current.candles.map((c) => ({ ...c })));
+    const precision = pricePrecision(current.candles);
+    series.applyOptions({
+      priceFormat: { type: "price", precision, minMove: 10 ** -precision },
+    });
+    chart.applyOptions({
+      timeScale: { timeVisible: typeof current.candles[0]?.time === "number", secondsVisible: false },
+    });
+    series.setData(current.candles.map((c) => ({ ...c, time: c.time as Time })));
     const lastCandle = current.candles[current.candles.length - 1];
     const priceLine = series.createPriceLine({
       price: lastCandle.close,
@@ -57,4 +75,4 @@
   });
 </script>
 
-<div class="h-[clamp(440px,60vh,760px)] w-full" role="img" aria-label={ariaLabel} bind:this={container}></div>
+<div class="w-full {className}" role="img" aria-label={label} bind:this={container}></div>
