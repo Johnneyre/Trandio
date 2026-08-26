@@ -2,6 +2,7 @@
   import PatternDetail from "$lib/components/PatternDetail.svelte";
   import PatternList from "$lib/components/PatternList.svelte";
   import Playground from "$lib/components/Playground.svelte";
+  import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import TrendFilter from "$lib/components/TrendFilter.svelte";
   import { PATTERNS } from "$lib/data/patterns";
   import type { Trend } from "$lib/types";
@@ -47,7 +48,9 @@
     </div>
     <div class="flex flex-wrap items-center gap-3">
       {#if view === "patrones"}
-        <TrendFilter value={selectedTrend} {counts} onchange={(t) => (selectedTrend = t)} />
+        <div class="max-lg:order-last max-lg:w-full">
+          <TrendFilter value={selectedTrend} {counts} onchange={(t) => (selectedTrend = t)} />
+        </div>
       {/if}
       <div class="flex gap-0.5 rounded-lg border border-border p-0.5" role="group" aria-label="Vista">
         <button
@@ -73,6 +76,7 @@
           Playground
         </button>
       </div>
+      <ThemeToggle />
     </div>
   </header>
 

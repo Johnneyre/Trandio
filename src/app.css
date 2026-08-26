@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import '@fontsource-variable/inter';
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
 
 @theme {
   --color-bg: #0a0a0a;
@@ -14,7 +14,7 @@
   --color-accent: #2962ff;
   --color-accent-soft: #8ab4ff;
   --color-up: #26a69a;
-  --color-down: #ef5350;
+  --color-down: #f4716e;
   --color-warn: #ffca28;
   --color-ma-fast: #f7a600;
   --color-ma-slow: #b39ddb;
@@ -26,12 +26,35 @@
   --color-chip-ma-fast: color-mix(in srgb, var(--color-ma-fast) 15%, var(--color-bg));
   --color-chip-ma-slow: color-mix(in srgb, var(--color-ma-slow) 15%, var(--color-bg));
 
-  --font-sans: 'Inter Variable', Inter, system-ui, 'Segoe UI', sans-serif;
+  --font-sans: "Inter Variable", Inter, system-ui, "Segoe UI", sans-serif;
 }
 
 html {
   font-size: 17px;
   color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #fbfbfa;
+  --color-ink: rgb(20 20 20 / 92%);
+  --color-ink-2: rgb(20 20 20 / 72%);
+  --color-ink-3: rgb(20 20 20 / 62%);
+  --color-border: rgb(0 0 0 / 10%);
+  --color-border-strong: rgb(0 0 0 / 20%);
+  --color-fill: rgb(0 0 0 / 5%);
+  --color-hover: rgb(0 0 0 / 8%);
+  --color-active: rgb(0 0 0 / 11%);
+  --color-accent-soft: #2962ff;
+  --color-up: #147a6c;
+  --color-down: #b02622;
+  --color-warn: #8a6100;
+  --color-ma-fast: #96650a;
+  --color-ma-slow: #6d47b1;
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgb(0 0 0 / 20%);
 }
 
 body {

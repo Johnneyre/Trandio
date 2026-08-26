@@ -8,8 +8,9 @@
     type Time,
   } from "lightweight-charts";
   import { applyOverlays } from "$lib/chart/overlays";
-  import { COLORS, candleSeriesOptions, chartOptions } from "$lib/chart/theme";
+  import { baseChartOptions, candleColors, candleSeriesOptions, themeChartOptions } from "$lib/chart/theme";
   import type { ChartSpec } from "$lib/chart/types";
+  import { theme } from "$lib/theme.svelte";
 
   let {
     spec,
@@ -34,7 +35,7 @@
   }
 
   $effect(() => {
-    chart = createChart(container, { ...chartOptions, autoSize: true });
+    chart = createChart(container, { ...baseChartOptions, autoSize: true });
     series = chart.addSeries(CandlestickSeries, candleSeriesOptions);
     return () => {
       chart?.applyOptions({ autoSize: false });
@@ -42,6 +43,18 @@
       chart = undefined;
       series = undefined;
     };
+  });
+
+  $effect(() => {
+    const mode = theme.mode;
+    chart?.applyOptions(themeChartOptions(mode));
+    const cc = candleColors(mode);
+    series?.applyOptions({
+      upColor: cc.up,
+      downColor: cc.down,
+      wickUpColor: cc.up,
+      wickDownColor: cc.down,
+    });
   });
 
   $effect(() => {
@@ -66,9 +79,10 @@
 
     const lastCandle = current.candles[current.candles.length - 1];
 
+    const cc = candleColors(theme.mode);
     const priceLine = series.createPriceLine({
       price: lastCandle.close,
-      color: lastCandle.close >= lastCandle.open ? COLORS.up : COLORS.down,
+      color: lastCandle.close >= lastCandle.open ? cc.up : cc.down,
       lineWidth: 1,
       lineStyle: LineStyle.Dashed,
       axisLabelVisible: true,

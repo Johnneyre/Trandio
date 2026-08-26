@@ -265,7 +265,7 @@
         <Chart {spec} label={chartLabel} class="h-[clamp(520px,calc(100dvh-230px),1000px)]" />
         {#if timeframes.length > 1}
           <select
-            class="absolute top-3 right-20 z-10 cursor-pointer rounded-md border border-border bg-bg/90 px-2 py-1 text-[13px] text-ink-2 scheme-dark backdrop-blur transition-colors hover:bg-fill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="absolute top-3 right-20 z-10 cursor-pointer rounded-md border border-border bg-bg/90 px-2 py-1 text-[13px] text-ink-2 backdrop-blur transition-colors hover:bg-fill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             aria-label="Temporalidad de las velas"
             value={tf}
             onchange={(e) => (timeframeSec = Number(e.currentTarget.value))}
