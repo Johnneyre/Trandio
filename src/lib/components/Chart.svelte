@@ -20,6 +20,8 @@
 
   let chart: IChartApi | undefined;
   let series: ISeriesApi<"Candlestick"> | undefined;
+  let lastCandles: ChartSpec["candles"] | undefined;
+  let fitPending = false;
 
   function pricePrecision(candles: ChartSpec["candles"]): number {
     let max = 2;
@@ -45,15 +47,25 @@
   $effect(() => {
     const current = spec;
     if (chart === undefined || series === undefined) return;
+
     const precision = pricePrecision(current.candles);
+
     series.applyOptions({
       priceFormat: { type: "price", precision, minMove: 10 ** -precision },
     });
+
     chart.applyOptions({
       timeScale: { timeVisible: typeof current.candles[0]?.time === "number", secondsVisible: false },
     });
+
+    const sameData = lastCandles === current.candles;
+
+    const savedRange = sameData && !fitPending ? chart.timeScale().getVisibleLogicalRange() : null;
+
     series.setData(current.candles.map((c) => ({ ...c, time: c.time as Time })));
+
     const lastCandle = current.candles[current.candles.length - 1];
+
     const priceLine = series.createPriceLine({
       price: lastCandle.close,
       color: lastCandle.close >= lastCandle.open ? COLORS.up : COLORS.down,
@@ -62,10 +74,21 @@
       axisLabelVisible: true,
       title: "Precio",
     });
+
     const removeOverlays = applyOverlays(chart, series, current, {
       compactLabels: container.clientWidth < 480,
     });
-    chart.timeScale().fitContent();
+
+    if (savedRange !== null) {
+      chart.timeScale().setVisibleLogicalRange(savedRange);
+    } else {
+      chart.timeScale().fitContent();
+      fitPending = true;
+      requestAnimationFrame(() => (fitPending = false));
+    }
+
+    lastCandles = current.candles;
+
     return () => {
       try {
         removeOverlays();

@@ -4,41 +4,69 @@
   import { parseCsv } from "$lib/data/csv";
   import { detectPatterns } from "$lib/data/detect";
   import { PATTERNS } from "$lib/data/patterns";
+  import { TIMEFRAMES_SEC, resampleCandles } from "$lib/data/resample";
   import Badges from "./Badges.svelte";
   import Chart from "./Chart.svelte";
 
   let csvText = $state("");
   let visibleIds = $state<string[]>([]);
   let dragging = $state(false);
-  let draft = $state("");
-  let dialog = $state<HTMLDialogElement>();
+  let timeframeSec = $state<number | null>(null);
 
   $effect(() => {
     void csvText;
     visibleIds = [];
+    timeframeSec = null;
+  });
+
+  $effect(() => {
+    void timeframeSec;
+    visibleIds = [];
   });
 
   const parsed = $derived(csvText.trim() === "" ? null : parseCsv(csvText));
-  const draftParsed = $derived(draft.trim() === "" ? null : parseCsv(draft));
-  const detections = $derived(parsed?.ok ? detectPatterns(parsed.candles) : []);
+
+  const tf = $derived(timeframeSec ?? (parsed?.ok ? parsed.meta.intervalSec : 0));
+
+  const timeframes = $derived.by(() => {
+    if (parsed?.ok !== true) return [];
+    const base = parsed.meta.intervalSec;
+    const span = parsed.meta.to - parsed.meta.from;
+    return [base, ...TIMEFRAMES_SEC.filter((s) => s > base && s % base === 0 && span / s >= 8)];
+  });
+
+  const candles = $derived.by(() => {
+    if (parsed?.ok !== true) return null;
+    return tf === parsed.meta.intervalSec ? parsed.candles : resampleCandles(parsed.candles, tf);
+  });
+
+  const activeMaOverlays = $derived(
+    parsed?.ok === true && candles !== null
+      ? parsed.maOverlays.filter((o) => o.kind !== "ma" || o.period < candles.length)
+      : [],
+  );
+
+  const detections = $derived(candles === null ? [] : detectPatterns(candles));
   const visible = $derived(detections.filter((d) => visibleIds.includes(d.id)));
 
   const spec = $derived.by(() => {
-    if (parsed === null || !parsed.ok) return null;
+    if (candles === null) return null;
     return composeUpload({
-      candles: parsed.candles,
-      overlays: [...parsed.maOverlays, ...visible.flatMap((d) => d.overlays)],
+      candles,
+      overlays: [...activeMaOverlays, ...visible.flatMap((d) => d.overlays)],
     });
   });
 
   const legend = $derived(
-    parsed?.ok ? overlayLegend([...parsed.maOverlays, ...visible.flatMap((d) => d.overlays)]) : [],
+    candles === null ? [] : overlayLegend([...activeMaOverlays, ...visible.flatMap((d) => d.overlays)]),
   );
 
   const chartLabel = $derived.by(() => {
     const parts = ["Gráfico de velas de los datos cargados"];
     if (visible.length > 0) {
-      parts.push(`con ${visible.length} ${visible.length === 1 ? "patrón detectado" : "patrones detectados"}`);
+      parts.push(
+        `con ${visible.length} ${visible.length === 1 ? "patrón detectado" : "patrones detectados"}`,
+      );
     }
     return parts.join(", ");
   });
@@ -68,38 +96,19 @@
 
   function detectionRange(d: (typeof detections)[number]): string {
     if (parsed === null || !parsed.ok) return "";
-    const withTime = parsed.meta.intervalSec < 86400;
+    const withTime = tf < 86400;
     return `${formatDate(d.from as number, withTime)} → ${formatDate(d.to as number, withTime)}`;
   }
 
-  type Target = "csv" | "draft";
-
-  async function loadFile(file: File | undefined, into: Target = "csv") {
+  async function loadFile(file: File | undefined) {
     if (!file) return;
-    const text = await file.text();
-    if (into === "draft") draft = text;
-    else csvText = text;
+    csvText = await file.text();
   }
 
-  async function onfile(e: Event, into: Target) {
+  async function onfile(e: Event) {
     const input = e.currentTarget as HTMLInputElement;
-    await loadFile(input.files?.[0], into);
+    await loadFile(input.files?.[0]);
     input.value = "";
-  }
-
-  function openEditor() {
-    draft = csvText;
-    dialog?.showModal();
-  }
-
-  function applyDraft() {
-    if (draftParsed?.ok !== true) return;
-    csvText = draft;
-    dialog?.close();
-  }
-
-  function onbackdrop(e: MouseEvent) {
-    if (e.target === dialog) dialog?.close();
   }
 
   function clearData() {
@@ -119,20 +128,11 @@
   }
 </script>
 
-{#snippet uploadButton(extra = "", into: Target = "csv")}
-  <label
-    class="inline-flex w-fit cursor-pointer items-center rounded-md border border-border px-3 py-1.5 text-sm text-ink-2 transition-colors hover:bg-fill focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent {extra}"
-  >
-    Subir CSV
-    <input type="file" accept=".csv,.txt" class="sr-only" onchange={(e) => onfile(e, into)} />
-  </label>
-{/snippet}
-
 {#if spec === null}
   <section
     class="grid min-h-[clamp(480px,calc(100dvh-190px),900px)] place-items-center rounded-lg border px-6 py-10 transition-colors {dragging
       ? 'border-accent bg-chip-accent/40'
-      : 'border-border'}"
+      : 'border-transparent'}"
     aria-label="Cargar datos"
     {ondragover}
     ondragleave={() => (dragging = false)}
@@ -148,7 +148,7 @@
       </div>
 
       <textarea
-        rows="9"
+        rows="10"
         placeholder="Pega aquí tus datos OHLC…&#10;&#10;Fecha,Apertura,Máximo,Mínimo,Cierre&#10;lun 24 Ago '26 14:15,&quot;1,16598&quot;,&quot;1,16630&quot;,…"
         aria-label="Datos CSV"
         class="w-full resize-none rounded-lg bg-fill px-3.5 py-3 font-mono text-[13px] leading-relaxed text-ink placeholder:text-ink-3"
@@ -156,7 +156,12 @@
       ></textarea>
 
       <div class="flex flex-wrap items-center justify-between gap-3">
-        {@render uploadButton()}
+        <label
+          class="inline-flex w-fit cursor-pointer items-center rounded-md bg-ink px-3.5 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
+        >
+          Subir CSV
+          <input type="file" accept=".csv,.txt" class="sr-only" onchange={onfile} />
+        </label>
         <p class="text-[13px] text-ink-3">o arrastra un archivo .csv sobre este cuadro</p>
       </div>
 
@@ -169,52 +174,64 @@
   </section>
 {:else if parsed?.ok}
   <div class="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-    <aside class="flex flex-col gap-4 max-lg:order-2 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-226px)]">
-      <div class="flex shrink-0 flex-col gap-2 rounded-lg border border-border px-3.5 py-3">
-        <div class="flex items-center justify-between gap-2">
-          <h2 class="text-sm font-medium text-ink-2">Datos</h2>
-          <div class="flex gap-0.5">
-            <button
-              type="button"
-              class="cursor-pointer rounded-md px-2 py-1 text-[13px] text-ink-3 transition-colors hover:bg-fill hover:text-ink"
-              onclick={openEditor}
-            >
-              Editar
-            </button>
-            <button
-              type="button"
-              class="cursor-pointer rounded-md px-2 py-1 text-[13px] text-ink-3 transition-colors hover:bg-chip-down hover:text-down"
-              onclick={clearData}
-            >
-              Eliminar
-            </button>
-          </div>
+    <aside class="flex min-h-0 flex-col max-lg:order-2 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-226px)]">
+      <div class="flex shrink-0 items-center justify-between gap-2">
+        <h2 class="text-lg font-semibold tracking-[-0.01em] text-ink">Patrones detectados</h2>
+        <div class="flex items-center gap-0.5">
+          <button
+            type="button"
+            class="cursor-pointer rounded-md p-1.5 text-ink-3 transition-colors hover:bg-chip-down hover:text-down"
+            aria-label="Eliminar datos"
+            onclick={clearData}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path
+                d="M2 2l10 10M12 2L2 12"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
         </div>
-        <p class="text-[13px] leading-relaxed text-ink-3 tabular-nums" role="status" aria-atomic="true">
-          <span class="font-medium text-ink">{parsed.meta.rows} velas</span>
-          · intervalo {formatInterval(parsed.meta.intervalSec)}
-          <br />
-          {formatDate(parsed.meta.from, parsed.meta.intervalSec < 86400)} →
-          {formatDate(parsed.meta.to, parsed.meta.intervalSec < 86400)}
-          {#if parsed.meta.skipped > 0}
-            <br />{parsed.meta.skipped} filas omitidas
-          {/if}
-        </p>
       </div>
 
-      <section
-        class="flex min-h-0 flex-col gap-1.5 lg:-m-1 lg:overflow-y-auto lg:p-1"
-        aria-label="Patrones detectados"
+      <dl
+        class="mt-4 shrink-0 divide-y divide-border border-y border-border"
+        role="status"
+        aria-atomic="true"
       >
-        <h2 class="px-1 text-sm font-medium text-ink-2">Patrones detectados</h2>
+        <div class="grid grid-cols-2 gap-x-4 py-3">
+          <div>
+            <dt class="text-[13px] text-ink-3">Ventana analizada</dt>
+            <dd class="mt-1 text-[15px] text-ink tabular-nums">{spec.candles.length} velas</dd>
+          </div>
+          <div>
+            <dt class="text-[13px] text-ink-3">Intervalo</dt>
+            <dd class="mt-1 text-[15px] text-ink tabular-nums">{formatInterval(tf)}</dd>
+          </div>
+        </div>
+        <div class="py-3">
+          <dt class="text-[13px] text-ink-3">Rango temporal</dt>
+          <dd class="mt-1 text-[15px] text-ink tabular-nums">
+            {formatDate(parsed.meta.from, tf < 86400)} → {formatDate(parsed.meta.to, tf < 86400)}
+          </dd>
+          {#if parsed.meta.skipped > 0}
+            <dd class="mt-1 text-[12px] text-ink-3">{parsed.meta.skipped} filas omitidas</dd>
+          {/if}
+        </div>
+      </dl>
+
+      <section
+        class="mt-4 flex min-h-0 flex-col gap-1.5 pt-3 lg:-mr-1 lg:-mb-1 lg:-ml-4 lg:overflow-y-auto lg:pr-1 lg:pb-1 lg:pl-4"
+        aria-label="Lista de patrones detectados"
+      >
         {#if detections.length === 0}
-          <p class="px-1 text-[13px] text-ink-3">
+          <p class="text-[13px] text-ink-3">
             Ningún patrón del diccionario aparece con claridad en estos datos.
           </p>
         {:else}
-          <p class="px-1 text-[13px] text-ink-3">
-            Selecciona un patrón para dibujarlo sobre el gráfico.
-          </p>
+          <p class="text-[14px] text-ink">Selecciona un patrón para dibujarlo sobre el gráfico.</p>
           <ul class="mt-1 flex flex-col gap-1">
             {#each detections as d (d.id)}
               {@const pattern = patternOf(d.patternId)}
@@ -223,9 +240,9 @@
                 <li>
                   <button
                     type="button"
-                    class="flex w-full cursor-pointer flex-col gap-2 rounded-md border-l-2 px-3 py-2.5 text-left transition-colors {active
-                      ? 'border-accent bg-active'
-                      : 'border-transparent hover:bg-fill'}"
+                    class="relative -ml-3 flex w-[calc(100%+0.75rem)] cursor-pointer flex-col gap-2 rounded-md px-3 py-2.5 text-left transition-colors {active
+                      ? 'bg-active before:absolute before:top-1/2 before:left-0 before:h-3/5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-up'
+                      : 'hover:bg-fill'}"
                     aria-pressed={active}
                     onclick={() => toggle(d.id)}
                   >
@@ -244,7 +261,21 @@
     </aside>
 
     <section class="flex min-w-0 flex-col gap-4 max-lg:order-1">
-      <Chart {spec} label={chartLabel} class="h-[clamp(520px,calc(100dvh-230px),1000px)]" />
+      <div class="relative">
+        <Chart {spec} label={chartLabel} class="h-[clamp(520px,calc(100dvh-230px),1000px)]" />
+        {#if timeframes.length > 1}
+          <select
+            class="absolute top-3 right-20 z-10 cursor-pointer rounded-md border border-border bg-bg/90 px-2 py-1 text-[13px] text-ink-2 scheme-dark backdrop-blur transition-colors hover:bg-fill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            aria-label="Temporalidad de las velas"
+            value={tf}
+            onchange={(e) => (timeframeSec = Number(e.currentTarget.value))}
+          >
+            {#each timeframes as s (s)}
+              <option class="bg-bg text-ink" value={s}>{formatInterval(s)}</option>
+            {/each}
+          </select>
+        {/if}
+      </div>
       {#if legend.length > 0}
         <ul class="flex flex-wrap gap-x-5 gap-y-2">
           {#each legend as item, i (i)}
@@ -257,65 +288,4 @@
       {/if}
     </section>
   </div>
-
-  <dialog
-    bind:this={dialog}
-    class="m-auto w-[min(720px,calc(100vw-2rem))] rounded-xl border border-border-strong bg-bg p-0 text-ink shadow-2xl backdrop:bg-black/60"
-    aria-labelledby="edit-data-title"
-    onclick={onbackdrop}
-  >
-    <form
-      method="dialog"
-      class="flex flex-col gap-4 p-6"
-      onsubmit={(e) => {
-        e.preventDefault();
-        applyDraft();
-      }}
-    >
-      <div class="flex flex-col gap-1">
-        <h2 id="edit-data-title" class="text-lg font-semibold tracking-[-0.01em]">Reemplazar datos</h2>
-        <p class="text-[14px] text-ink-3">
-          Pega un CSV nuevo o sube un archivo. Al aplicar se sustituyen los datos actuales.
-        </p>
-      </div>
-
-      <textarea
-        rows="14"
-        aria-label="Datos CSV"
-        class="w-full resize-none rounded-lg bg-fill px-3.5 py-3 font-mono text-[13px] leading-relaxed text-ink placeholder:text-ink-3"
-        placeholder="Fecha,Apertura,Máximo,Mínimo,Cierre&#10;…"
-        bind:value={draft}
-      ></textarea>
-
-      {#if draftParsed !== null && !draftParsed.ok}
-        <p class="rounded-md bg-chip-down px-3.5 py-2.5 text-[13px] text-down" role="alert">
-          {draftParsed.error}
-        </p>
-      {:else if draftParsed?.ok}
-        <p class="px-1 text-[13px] text-ink-3 tabular-nums" role="status">
-          {draftParsed.meta.rows} velas · intervalo {formatInterval(draftParsed.meta.intervalSec)}
-        </p>
-      {/if}
-
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        {@render uploadButton("", "draft")}
-        <div class="flex gap-2">
-          <button
-            type="button"
-            class="cursor-pointer rounded-md px-3 py-1.5 text-sm text-ink-2 transition-colors hover:bg-fill"
-            onclick={() => dialog?.close()}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            class="cursor-pointer rounded-md bg-ink px-3.5 py-1.5 text-sm font-medium text-bg transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={draftParsed?.ok !== true}
-          >
-            Aplicar
-          </button>
-        </div>
-      </div>
-    </form>
-  </dialog>
 {/if}

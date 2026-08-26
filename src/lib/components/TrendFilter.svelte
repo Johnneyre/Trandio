@@ -32,7 +32,7 @@
       <span class="h-1.5 w-1.5 rounded-full {opt.dot}" aria-hidden="true"></span>
       <span class="max-sm:hidden">{opt.label}</span>
       <span class="sm:hidden">{opt.shortLabel}</span>
-      <span class="text-sm text-ink-3 mt-1">{counts[opt.value]}</span>
+      <span class="text-sm text-ink-3">{counts[opt.value]}</span>
     </button>
   {/each}
 </div>
