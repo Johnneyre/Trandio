@@ -1,47 +1,103 @@
-# Svelte + TS + Vite
+<div align="center">
+  <img src="public/favicon.svg" alt="Logo de Trandio" width="56" height="54">
+  <h1>Trandio</h1>
+  <p><strong>Diccionario interactivo de patrones chartistas con gráficos de velas, y un playground para detectarlos en tus propios datos.</strong></p>
+  <p>
+    <a href="https://trandio-six.vercel.app/"><img src="https://img.shields.io/badge/demo-trandio--six.vercel.app-863bff" alt="Demo"></a>
+    <img src="https://img.shields.io/badge/Svelte-5-ff3e00?logo=svelte&logoColor=white" alt="Svelte 5">
+    <img src="https://img.shields.io/badge/TypeScript-6-3178c6?logo=typescript&logoColor=white" alt="TypeScript">
+    <img src="https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white" alt="Vite">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/licencia-MIT-blue" alt="Licencia MIT"></a>
+  </p>
+</div>
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+Trandio reúne 24 patrones de análisis técnico (reversión, continuación, velas simples, canales, indicadores y niveles) y los dibuja sobre velas generadas a medida, con las líneas que definen cada figura y el marcador de compra/venta en la vela de disparo. Además, permite cargar un CSV con velas OHLC reales y superponer los patrones que detecta.
 
-## Recommended IDE Setup
+## Características
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+- **24 patrones** explicados y dibujados: hombro-cabeza-hombro (y su versión invertida), doble techo/suelo, cuñas, triángulos, banderas, canales, tridentes de Andrews/Schiff, cruces de medias móviles, soportes y resistencias, martillo, estrella fugaz, doji y velas envolventes.
+- **Gráficos de velas animados**: las velas aparecen de izquierda a derecha y las líneas, marcadores y niveles del patrón se revelan con ellas.
+- **Filtro por tendencia** (alcista, bajista, rango) y búsqueda por nombre; variantes alcista/bajista donde aplica.
+- **Playground**: carga tus velas OHLC por arrastre, selector de archivo o pegado, elige la temporalidad y activa los patrones detectados sobre tus datos.
+- **Tema claro y oscuro**, diseño responsive, tamaños táctiles en móvil y soporte de `prefers-reduced-motion`.
 
-## Need an official Svelte framework?
+## Puesta en marcha
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+Requisitos: [Node.js](https://nodejs.org/) 20.19+ (o 22.12+) y [pnpm](https://pnpm.io/).
 
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```bash
+pnpm install
+pnpm dev
 ```
+
+Abre http://localhost:5173/ en el navegador.
+
+Otros comandos:
+
+| Comando | Descripción |
+| --- | --- |
+| `pnpm build` | Genera la versión de producción en `dist/` |
+| `pnpm preview` | Sirve `dist/` en local |
+| `pnpm check` | Comprueba tipos con `svelte-check` y `tsc` |
+
+## Uso
+
+### Patrones
+
+Selecciona un patrón en la lista lateral para verlo en el gráfico junto a su descripción. Los patrones con dos direcciones (por ejemplo, el doji) tienen un conmutador **Alcista / Bajista** sobre el gráfico. Los filtros de tendencia y el buscador acotan la lista.
+
+### Playground
+
+Carga un archivo CSV (o pega su contenido) con una fila de cabecera y, al menos, dos filas de velas. Las columnas se reconocen por su nombre, en español o inglés:
+
+| Columna | Cabeceras aceptadas |
+| --- | --- |
+| Fecha | `fecha`, `date`, `time`, `tiempo` |
+| Apertura | `apertura`, `open` |
+| Máximo | `máximo`, `max`, `high`, `alto` |
+| Mínimo | `mínimo`, `min`, `low`, `bajo` |
+| Cierre | `cierre`, `close`, `último`, `last` |
+
+```csv
+fecha,apertura,maximo,minimo,cierre
+2024-01-02,100.00,101.20,99.40,100.80
+2024-01-03,100.80,102.10,100.30,101.90
+```
+
+- Fechas admitidas: ISO (`2024-01-15`, `2024-01-15 14:30`), formato español (`15 ene 2024`, `15 ene '24 14:30`) y numérico (`15/01/2024`, `15.01.2024`).
+- Los decimales pueden usar coma o punto; se ignoran los separadores de miles.
+- Las columnas adicionales con nombre `SMA 20`, `EMA 50`, etc. se dibujan como medias móviles.
+- El intervalo de las velas se detecta automáticamente y puedes reagrupar a temporalidades mayores (1 m, 5 m, 15 m, 30 m, 1 h, 2 h, 4 h, 1 d) desde el selector del gráfico.
+
+Una vez cargados los datos, el panel lateral lista los patrones detectados (dobles techos y suelos, hombro-cabeza-hombro, canales, cuñas y triángulos, soportes y resistencias, aceleraciones, señales de velas y cruces de medias). Activa los que quieras para dibujarlos sobre el gráfico.
+
+> [!NOTE]
+> Todo el procesamiento ocurre en el navegador: el CSV no se envía a ningún servidor.
+
+## Estructura del proyecto
+
+```
+src/
+├── App.svelte              # Cabecera, filtros y cambio de vista Patrones / Playground
+├── lib/
+│   ├── chart/              # Gráfico (lightweight-charts): overlays, animación, tema, leyenda
+│   ├── components/         # Chart, PatternList, PatternDetail, Playground, ThemeToggle…
+│   └── data/
+│       ├── patterns/       # Definición de los 24 patrones (velas + overlays)
+│       ├── candleFactory.ts # Generador determinista de velas a partir de puntos clave
+│       ├── csv.ts          # Parser de CSV OHLC
+│       ├── detect.ts       # Detección de patrones sobre datos reales
+│       └── resample.ts     # Reagrupado por temporalidad
+└── app.css                 # Tema (Tailwind CSS 4) y variables de color
+```
+
+## Añadir un patrón
+
+1. Crea el patrón en `src/lib/data/patterns/` con `genCandles` (velas a partir de puntos clave) y sus `overlays` (`hline`, `trendline`, `channel`, `pitchfork`, `ma`, `marker`).
+2. Regístralo en `src/lib/data/patterns/index.ts`.
+
+Aparecerá en la lista, en los filtros y en los datos estructurados de la página sin más cambios.
+
+## Tecnologías
+
+[Svelte 5](https://svelte.dev/) · [TypeScript](https://www.typescriptlang.org/) · [Vite](https://vite.dev/) · [Tailwind CSS 4](https://tailwindcss.com/) · [Lightweight Charts](https://tradingview.github.io/lightweight-charts/)
