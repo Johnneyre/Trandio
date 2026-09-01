@@ -38,7 +38,26 @@
     bajista: PATTERNS.filter((p) => p.trends.includes("bajista")).length,
     rango: PATTERNS.filter((p) => p.trends.includes("rango")).length,
   };
+
+  const SITE_URL = "https://trandio-six.vercel.app/";
+  const patternsJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "DefinedTermSet",
+    "@id": `${SITE_URL}#patrones`,
+    name: "Patrones chartistas",
+    inLanguage: "es",
+    hasDefinedTerm: PATTERNS.map((p) => ({
+      "@type": "DefinedTerm",
+      name: p.name,
+      description: p.description,
+      inDefinedTermSet: `${SITE_URL}#patrones`,
+    })),
+  }).replaceAll("<", "\\u003c");
 </script>
+
+<svelte:head>
+  {@html `<script type="application/ld+json">${patternsJsonLd}</script>`}
+</svelte:head>
 
 <div class="mx-auto flex max-w-[1560px] flex-col gap-6 px-6 py-6 lg:px-10">
   <header class="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
