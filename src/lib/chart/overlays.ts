@@ -3,13 +3,21 @@ import {
   LineStyle,
   createSeriesMarkers,
   type IChartApi,
+  type IPriceLine,
   type ISeriesApi,
   type LineWidth,
-  type SeriesMarker,
   type Time,
 } from "lightweight-charts";
-import type { LineStyleKind, MarkerShape, PricePoint, TimeValue } from "$lib/types";
-import type { ChartSegment, ChartSpec, LineOpts, OverlayHandles, OverlayOptions } from "./types";
+import type { LineStyleKind, MarkerShape, TimeValue } from "$lib/types";
+import type {
+  BarPoint,
+  ChartSegment,
+  ChartSpec,
+  LineOpts,
+  OverlayController,
+  OverlayDefs,
+  OverlayOptions,
+} from "./types";
 import { ema, sma } from "./indicators";
 import { COLORS } from "./theme";
 
@@ -26,17 +34,23 @@ const MARKER_COLOR: Record<MarkerShape, string> = {
   square: COLORS.trend,
 };
 
-function addLine(chart: IChartApi, points: PricePoint[], opts: LineOpts, out: OverlayHandles): void {
-  const series = chart.addSeries(LineSeries, {
-    color: opts.color,
-    lineWidth: (opts.width ?? 2) as LineWidth,
-    lineStyle: STYLE_MAP[opts.style ?? "solid"],
-    priceLineVisible: false,
-    lastValueVisible: false,
-    crosshairMarkerVisible: false,
-  });
-  series.setData(points.map((p) => ({ time: p.time as Time, value: p.value })));
-  out.lines.push(series);
+function clipPolyline(points: BarPoint[], bar: number): BarPoint[] {
+  if (points.length === 0 || points[points.length - 1].bar <= bar) return points;
+  const out: BarPoint[] = [];
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    if (p.bar <= bar) {
+      out.push(p);
+      continue;
+    }
+    const prev = points[i - 1];
+    if (prev !== undefined && prev.bar < bar) {
+      const t = (bar - prev.bar) / (p.bar - prev.bar);
+      out.push({ bar, value: prev.value + (p.value - prev.value) * t });
+    }
+    break;
+  }
+  return out;
 }
 
 export function applyOverlays(
@@ -44,65 +58,114 @@ export function applyOverlays(
   series: ISeriesApi<"Candlestick">,
   spec: ChartSpec,
   opts: OverlayOptions = {},
-): () => void {
-  const markers: SeriesMarker<Time>[] = [];
-  const out: OverlayHandles = { lines: [], priceLines: [] };
+): OverlayController {
+  const defs: OverlayDefs = { lines: [], levels: [], markers: [] };
   const single = spec.segments.length === 1;
 
   for (const seg of spec.segments) {
-    applySegment(chart, series, spec, seg, single, markers, out, opts);
+    collectSegment(spec, seg, single, defs, opts);
   }
+  defs.markers.sort((a, b) => a.bar - b.bar);
 
-  const markersApi =
-    markers.length > 0
-      ? createSeriesMarkers(
-          series,
-          markers.toSorted((a, b) => ((a.time as string) < (b.time as string) ? -1 : 1)),
-        )
-      : null;
+  const timeAt = (bar: number) => spec.candles[bar].time as Time;
 
-  return () => {
-    for (const line of out.lines) chart.removeSeries(line);
-    for (const pl of out.priceLines) series.removePriceLine(pl);
-    markersApi?.detach();
+  const lines = defs.lines.map((def) => ({
+    def,
+    series: chart.addSeries(LineSeries, {
+      color: def.opts.color,
+      lineWidth: (def.opts.width ?? 2) as LineWidth,
+      lineStyle: STYLE_MAP[def.opts.style ?? "solid"],
+      priceLineVisible: false,
+      lastValueVisible: false,
+      crosshairMarkerVisible: false,
+    }),
+  }));
+  const levels = defs.levels.map((def) => ({ def, handle: null as IPriceLine | null }));
+  const markersApi = defs.markers.length > 0 ? createSeriesMarkers(series, []) : null;
+
+  let revealed: number | null = null;
+
+  return {
+    reveal(bar) {
+      if (bar === revealed) return;
+      revealed = bar;
+
+      for (const line of lines) {
+        line.series.setData(
+          clipPolyline(line.def.points, bar).map((p) => ({ time: timeAt(p.bar), value: p.value })),
+        );
+      }
+
+      for (const level of levels) {
+        const show = bar >= level.def.revealBar;
+        if (show && level.handle === null) {
+          level.handle = series.createPriceLine(level.def.options);
+        } else if (!show && level.handle !== null) {
+          series.removePriceLine(level.handle);
+          level.handle = null;
+        }
+      }
+
+      markersApi?.setMarkers(
+        defs.markers.map((m) =>
+          m.bar <= bar ? m.marker : { ...m.marker, color: "transparent", text: undefined },
+        ),
+      );
+    },
+
+    valueRange() {
+      let min = Infinity;
+      let max = -Infinity;
+      for (const { points } of defs.lines) {
+        for (const p of points) {
+          if (p.value < min) min = p.value;
+          if (p.value > max) max = p.value;
+        }
+      }
+      return min <= max ? { min, max } : null;
+    },
+
+    dispose() {
+      for (const line of lines) chart.removeSeries(line.series);
+      for (const level of levels) if (level.handle !== null) series.removePriceLine(level.handle);
+      markersApi?.detach();
+    },
   };
 }
 
-function applySegment(
-  chart: IChartApi,
-  series: ISeriesApi<"Candlestick">,
+function collectSegment(
   spec: ChartSpec,
   seg: ChartSegment,
   single: boolean,
-  markers: SeriesMarker<Time>[],
-  out: OverlayHandles,
+  defs: OverlayDefs,
   opts: OverlayOptions,
 ): void {
   const { pattern, startBar, scale } = seg;
   const lastLocalBar = pattern.candles.length - 1;
 
   const localBarOf = (time: TimeValue) => pattern.candles.findIndex((c) => c.time === time);
-  const pointAt = (localBar: number, value: number): PricePoint => ({
-    time: spec.candles[startBar + localBar].time,
+  const pointAt = (localBar: number, value: number): BarPoint => ({
+    bar: startBar + localBar,
     value: value * scale,
   });
-  const mapPoint = (p: PricePoint): PricePoint => pointAt(localBarOf(p.time), p.value);
+  const mapPoint = (p: { time: TimeValue; value: number }): BarPoint => pointAt(localBarOf(p.time), p.value);
+  const addLine = (points: BarPoint[], lineOpts: LineOpts) =>
+    defs.lines.push({ points: points.toSorted((a, b) => a.bar - b.bar), opts: lineOpts });
 
   for (const ov of pattern.overlays) {
     switch (ov.kind) {
       case "trendline":
-        addLine(
-          chart,
-          [mapPoint(ov.from), mapPoint(ov.to)],
-          { color: ov.color ?? COLORS.trend, style: ov.style, width: ov.width },
-          out,
-        );
+        addLine([mapPoint(ov.from), mapPoint(ov.to)], {
+          color: ov.color ?? COLORS.trend,
+          style: ov.style,
+          width: ov.width,
+        });
         break;
 
       case "channel": {
         const color = ov.color ?? COLORS.trend;
-        addLine(chart, ov.upper.map(mapPoint), { color }, out);
-        addLine(chart, ov.lower.map(mapPoint), { color }, out);
+        addLine(ov.upper.map(mapPoint), { color });
+        addLine(ov.lower.map(mapPoint), { color });
         break;
       }
 
@@ -119,71 +182,67 @@ function applySegment(
         const slope = (midPrice - anchorPrice) / (midBar - anchorBar);
         const color = ov.color ?? COLORS.maSlow;
         const tine = (fromBar: number, fromPrice: number, width: number) =>
-          addLine(
-            chart,
-            [pointAt(fromBar, fromPrice), pointAt(endBar, fromPrice + slope * (endBar - fromBar))],
-            { color, width },
-            out,
-          );
+          addLine([pointAt(fromBar, fromPrice), pointAt(endBar, fromPrice + slope * (endBar - fromBar))], {
+            color,
+            width,
+          });
         tine(anchorBar, anchorPrice, 2);
         tine(bBar, ov.b.value, 1);
         tine(cBar, ov.c.value, 1);
-        addLine(
-          chart,
-          [mapPoint(ov.a), mapPoint(ov.b)],
-          { color: COLORS.neutral, style: "dashed", width: 1 },
-          out,
-        );
-        addLine(
-          chart,
-          [mapPoint(ov.b), mapPoint(ov.c)],
-          { color: COLORS.neutral, style: "dashed", width: 1 },
-          out,
-        );
+        addLine([mapPoint(ov.a), mapPoint(ov.b)], { color: COLORS.neutral, style: "dashed", width: 1 });
+        addLine([mapPoint(ov.b), mapPoint(ov.c)], { color: COLORS.neutral, style: "dashed", width: 1 });
         break;
       }
 
       case "ma": {
         const segmentCandles = spec.candles.slice(startBar, startBar + pattern.candles.length);
         const data = (ov.type === "ema" ? ema : sma)(segmentCandles, ov.period);
-        addLine(chart, data, { color: ov.color ?? COLORS.maFast }, out);
+        addLine(
+          data.map((p, i) => ({ bar: startBar + ov.period - 1 + i, value: p.value })),
+          { color: ov.color ?? COLORS.maFast },
+        );
         break;
       }
 
       case "hline": {
         const color = ov.color ?? COLORS.neutral;
         if (single) {
-          out.priceLines.push(
-            series.createPriceLine({
+          defs.levels.push({
+            revealBar: startBar + lastLocalBar,
+            options: {
               price: ov.price * scale,
               color,
               lineWidth: 1,
               lineStyle: STYLE_MAP[ov.style ?? "dashed"],
               axisLabelVisible: true,
               title: opts.compactLabels ? "" : (ov.label ?? ""),
-            }),
-          );
+            },
+          });
         } else {
-          addLine(
-            chart,
-            [pointAt(0, ov.price), pointAt(lastLocalBar, ov.price)],
-            { color, style: ov.style ?? "dashed", width: 1 },
-            out,
-          );
+          addLine([pointAt(0, ov.price), pointAt(lastLocalBar, ov.price)], {
+            color,
+            style: ov.style ?? "dashed",
+            width: 1,
+          });
         }
         break;
       }
 
-      case "marker":
-        markers.push({
-          time: spec.candles[startBar + localBarOf(ov.time)].time as Time,
-          position: ov.position,
-          shape: ov.shape,
-          color: ov.color ?? MARKER_COLOR[ov.shape],
-          text: ov.text,
-          size: 2,
+      case "marker": {
+        const bar = startBar + localBarOf(ov.time);
+        defs.markers.push({
+          bar,
+          marker: {
+            time: spec.candles[bar].time as Time,
+            position: ov.position,
+            shape: ov.shape,
+            color: ov.color ?? MARKER_COLOR[ov.shape],
+            text: ov.text,
+            size: 2,
+          },
         });
         break;
+      }
 
       default: {
         const _exhaustive: never = ov;

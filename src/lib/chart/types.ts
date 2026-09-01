@@ -1,4 +1,11 @@
-import type { IPriceLine, ISeriesApi } from "lightweight-charts";
+import type {
+  CandlestickData,
+  CreatePriceLineOptions,
+  IPriceLine,
+  ISeriesApi,
+  SeriesMarker,
+  Time,
+} from "lightweight-charts";
 import type { Candle, LineStyleKind, Pattern } from "$lib/types";
 
 export type ChartPattern = Pick<Pattern, "candles" | "overlays">;
@@ -27,4 +34,48 @@ export interface OverlayHandles {
 
 export interface OverlayOptions {
   compactLabels?: boolean;
+}
+
+export interface BarPoint {
+  bar: number;
+  value: number;
+}
+
+export interface LineDef {
+  points: BarPoint[];
+  opts: LineOpts;
+}
+
+export interface LevelDef {
+  revealBar: number;
+  options: CreatePriceLineOptions;
+}
+
+export interface MarkerDef {
+  bar: number;
+  marker: SeriesMarker<Time>;
+}
+
+export interface OverlayDefs {
+  lines: LineDef[];
+  levels: LevelDef[];
+  markers: MarkerDef[];
+}
+
+export interface ValueRange {
+  min: number;
+  max: number;
+}
+
+export interface OverlayController {
+  reveal(bar: number): void;
+  valueRange(): ValueRange | null;
+  dispose(): void;
+}
+
+export interface RevealTarget {
+  series: ISeriesApi<"Candlestick">;
+  data: CandlestickData<Time>[];
+  overlays: OverlayController;
+  onComplete?: () => void;
 }

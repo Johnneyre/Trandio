@@ -39,7 +39,7 @@
   </div>
 {:else}
   <div class="relative">
-    <Chart {spec} label={chartLabel} />
+    <Chart {spec} label={chartLabel} animate />
     {#if pattern.variants}
       <div
         class="absolute top-3 left-3 z-10 flex gap-0.5 rounded-lg border border-border bg-bg/90 p-0.5"

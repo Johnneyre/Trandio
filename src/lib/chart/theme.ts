@@ -51,7 +51,7 @@ export const baseChartOptions: DeepPartial<ChartOptions> = {
     fontFamily: "'Inter Variable', Inter, system-ui, sans-serif",
   },
   crosshair: { mode: CrosshairMode.Magnet },
-  timeScale: { rightOffset: 3, fixLeftEdge: true },
+  timeScale: { rightOffset: 3, fixLeftEdge: true, shiftVisibleRangeOnNewBar: false },
   handleScroll: { mouseWheel: false, vertTouchDrag: false },
   handleScale: { mouseWheel: false, pinch: true },
 };

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import { composeUpload } from "$lib/chart/compose";
   import { overlayLegend } from "$lib/chart/legend";
   import { parseCsv } from "$lib/data/csv";
@@ -13,15 +14,19 @@
   let dragging = $state(false);
   let timeframeSec = $state<number | null>(null);
 
+  function clearVisible() {
+    if (visibleIds.length > 0) visibleIds = [];
+  }
+
   $effect(() => {
     void csvText;
-    visibleIds = [];
+    untrack(clearVisible);
     timeframeSec = null;
   });
 
   $effect(() => {
     void timeframeSec;
-    visibleIds = [];
+    untrack(clearVisible);
   });
 
   const parsed = $derived(csvText.trim() === "" ? null : parseCsv(csvText));
@@ -45,6 +50,8 @@
       ? parsed.maOverlays.filter((o) => o.kind !== "ma" || o.period < candles.length)
       : [],
   );
+
+  const animateUpload = $derived(timeframeSec === null);
 
   const detections = $derived(candles === null ? [] : detectPatterns(candles));
   const visible = $derived(detections.filter((d) => visibleIds.includes(d.id)));
@@ -262,7 +269,12 @@
 
     <section class="flex min-w-0 flex-col gap-4 max-lg:order-1">
       <div class="relative">
-        <Chart {spec} label={chartLabel} class="h-[clamp(520px,calc(100dvh-230px),1000px)]" />
+        <Chart
+          {spec}
+          label={chartLabel}
+          animate={animateUpload}
+          class="h-[clamp(520px,calc(100dvh-230px),1000px)]"
+        />
         {#if timeframes.length > 1}
           <select
             class="absolute top-3 right-20 z-10 cursor-pointer rounded-md border border-border bg-bg/90 px-2 py-1 text-[13px] text-ink-2 backdrop-blur transition-colors hover:bg-fill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
