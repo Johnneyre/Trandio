@@ -50,6 +50,9 @@
     </script>
     <script>
       (function () {
+        if (location.pathname !== "/") {
+          history.replaceState(null, "", "/" + location.search + location.hash);
+        }
         var light = false;
         try {
           light = localStorage.getItem("trandio-theme") === "light";
