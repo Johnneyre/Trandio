@@ -31,9 +31,8 @@ export const envolventeAlcista: Pattern = {
   }),
   overlays: [
     { kind: 'ma', period: 9, color: COLORS.maFast, label: 'SMA 9' },
-    { kind: 'hline', price: 97.8, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 108, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(24), position: 'belowBar', shape: 'arrowUp', text: 'Envolvente' },
+    { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'circle', text: 'Envolvente' },
+    { kind: 'marker', time: d(24), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };
 
@@ -63,8 +62,7 @@ export const envolventeBajista: Pattern = {
   }),
   overlays: [
     { kind: 'ma', period: 9, color: COLORS.maFast, label: 'SMA 9' },
-    { kind: 'hline', price: 112, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 102, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'arrowDown', text: 'Envolvente' },
+    { kind: 'marker', time: d(24), position: 'belowBar', shape: 'circle', text: 'Envolvente' },
+    { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'arrowDown', text: 'Venta' },
   ],
 };

@@ -1,4 +1,3 @@
-import { COLORS } from '$lib/chart/theme';
 import type { Pattern } from '$lib/types';
 import { dateAt, genCandles } from '$lib/data/candleFactory';
 
@@ -30,12 +29,10 @@ export const hch: Pattern = {
   }),
   overlays: [
     { kind: 'hline', price: 105, style: 'dashed', label: 'Línea de cuello' },
-    { kind: 'hline', price: 112.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 90, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(10), position: 'aboveBar', shape: 'circle', text: 'Hombro' },
     { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'circle', text: 'Cabeza' },
     { kind: 'marker', time: d(38), position: 'aboveBar', shape: 'circle', text: 'Hombro' },
-    { kind: 'marker', time: d(46), position: 'aboveBar', shape: 'arrowDown', text: 'Ruptura' },
+    { kind: 'marker', time: d(46), position: 'aboveBar', shape: 'arrowDown', text: 'Venta' },
   ],
 };
 
@@ -64,11 +61,9 @@ export const hchInvertido: Pattern = {
   }),
   overlays: [
     { kind: 'hline', price: 115, style: 'dashed', label: 'Línea de cuello' },
-    { kind: 'hline', price: 107.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 130, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(10), position: 'belowBar', shape: 'circle', text: 'Hombro' },
     { kind: 'marker', time: d(24), position: 'belowBar', shape: 'circle', text: 'Cabeza' },
     { kind: 'marker', time: d(38), position: 'belowBar', shape: 'circle', text: 'Hombro' },
-    { kind: 'marker', time: d(46), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
+    { kind: 'marker', time: d(46), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };

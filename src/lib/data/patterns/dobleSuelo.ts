@@ -1,4 +1,3 @@
-import { COLORS } from '$lib/chart/theme';
 import type { Pattern } from '$lib/types';
 import { dateAt, genCandles } from '$lib/data/candleFactory';
 
@@ -29,10 +28,8 @@ export const dobleSuelo: Pattern = {
   }),
   overlays: [
     { kind: 'hline', price: 109, style: 'dashed', label: 'Línea de cuello' },
-    { kind: 'hline', price: 99, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 118, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(18), position: 'belowBar', shape: 'arrowUp', text: 'Suelo 1' },
     { kind: 'marker', time: d(36), position: 'belowBar', shape: 'arrowUp', text: 'Suelo 2' },
-    { kind: 'marker', time: d(44), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
+    { kind: 'marker', time: d(44), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };

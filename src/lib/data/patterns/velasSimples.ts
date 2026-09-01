@@ -1,4 +1,3 @@
-import { COLORS } from '$lib/chart/theme';
 import type { Pattern, PatternVariant } from '$lib/types';
 import { dateAt, genCandles } from '$lib/data/candleFactory';
 
@@ -28,9 +27,8 @@ export const martillo: Pattern = {
     },
   }),
   overlays: [
-    { kind: 'hline', price: 97.2, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 108, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(22), position: 'belowBar', shape: 'arrowUp', text: 'Martillo' },
+    { kind: 'marker', time: d(22), position: 'aboveBar', shape: 'circle', text: 'Martillo' },
+    { kind: 'marker', time: d(22), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };
 
@@ -57,9 +55,8 @@ export const estrellaFugaz: Pattern = {
     },
   }),
   overlays: [
-    { kind: 'hline', price: 119.2, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 107, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(22), position: 'aboveBar', shape: 'arrowDown', text: 'Estrella fugaz' },
+    { kind: 'marker', time: d(22), position: 'belowBar', shape: 'circle', text: 'Estrella fugaz' },
+    { kind: 'marker', time: d(22), position: 'aboveBar', shape: 'arrowDown', text: 'Venta' },
   ],
 };
 

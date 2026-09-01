@@ -47,8 +47,6 @@ export const bandera: Pattern = {
       color: COLORS.trend,
       label: 'Bandera',
     },
-    { kind: 'hline', price: 115, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 137, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(28), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
+    { kind: 'marker', time: d(28), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };

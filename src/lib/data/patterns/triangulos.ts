@@ -33,8 +33,6 @@ export const trianguloAscendente: Pattern = {
   }),
   overlays: [
     { kind: 'hline', price: 112, color: COLORS.sr, style: 'dashed', label: 'Resistencia' },
-    { kind: 'hline', price: 108, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 121, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     {
       kind: 'trendline',
       from: p(0, 100.2),
@@ -42,7 +40,7 @@ export const trianguloAscendente: Pattern = {
       color: COLORS.trend,
       label: 'Soporte ascendente',
     },
-    { kind: 'marker', time: d(35), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
+    { kind: 'marker', time: d(35), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };
 
@@ -73,8 +71,6 @@ export const trianguloDescendente: Pattern = {
   }),
   overlays: [
     { kind: 'hline', price: 100, color: COLORS.sr, style: 'dashed', label: 'Soporte' },
-    { kind: 'hline', price: 104, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 91, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     {
       kind: 'trendline',
       from: p(0, 111),
@@ -82,7 +78,7 @@ export const trianguloDescendente: Pattern = {
       color: COLORS.trend,
       label: 'Resistencia descendente',
     },
-    { kind: 'marker', time: d(35), position: 'aboveBar', shape: 'arrowDown', text: 'Ruptura' },
+    { kind: 'marker', time: d(35), position: 'aboveBar', shape: 'arrowDown', text: 'Venta' },
   ],
 };
 
@@ -126,8 +122,6 @@ export const trianguloSimetrico: Pattern = {
       color: COLORS.trend,
       label: 'Soporte',
     },
-    { kind: 'hline', price: 103.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 117, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(33), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
+    { kind: 'marker', time: d(33), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };

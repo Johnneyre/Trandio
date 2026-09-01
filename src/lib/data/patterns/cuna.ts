@@ -47,9 +47,7 @@ export const cunaAscendente: Pattern = {
       color: COLORS.trend,
       label: 'Resistencia de la cuña',
     },
-    { kind: 'hline', price: 122.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 104, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(40), position: 'aboveBar', shape: 'arrowDown', text: 'Ruptura' },
+    { kind: 'marker', time: d(40), position: 'aboveBar', shape: 'arrowDown', text: 'Venta' },
   ],
 };
 
@@ -94,8 +92,6 @@ export const cunaDescendente: Pattern = {
       color: COLORS.trend,
       label: 'Soporte de la cuña',
     },
-    { kind: 'hline', price: 97.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 116, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
-    { kind: 'marker', time: d(40), position: 'belowBar', shape: 'arrowUp', text: 'Ruptura' },
+    { kind: 'marker', time: d(40), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };

@@ -38,11 +38,9 @@ export const canalAlcista: Pattern = {
       color: COLORS.trend,
       label: 'Canal alcista',
     },
-    { kind: 'hline', price: 110.5, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 123, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(13), position: 'belowBar', shape: 'circle' },
     { kind: 'marker', time: d(27), position: 'belowBar', shape: 'circle', text: 'Rebote' },
-    { kind: 'marker', time: d(41), position: 'belowBar', shape: 'circle' },
+    { kind: 'marker', time: d(41), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };
 
@@ -78,11 +76,9 @@ export const canalBajista: Pattern = {
       color: COLORS.trend,
       label: 'Canal bajista',
     },
-    { kind: 'hline', price: 107, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 95, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(20), position: 'aboveBar', shape: 'circle', text: 'Rebote' },
     { kind: 'marker', time: d(34), position: 'aboveBar', shape: 'circle' },
-    { kind: 'marker', time: d(48), position: 'aboveBar', shape: 'circle' },
+    { kind: 'marker', time: d(48), position: 'aboveBar', shape: 'arrowDown', text: 'Venta' },
   ],
 };
 
@@ -113,9 +109,8 @@ export const canalLateral: Pattern = {
   overlays: [
     { kind: 'hline', price: 110, color: COLORS.sr, style: 'dashed', label: 'Resistencia' },
     { kind: 'hline', price: 100, color: COLORS.sr, style: 'dashed', label: 'Soporte' },
-    { kind: 'hline', price: 98, color: COLORS.down, style: 'dotted', label: 'Stop Loss' },
-    { kind: 'hline', price: 109, color: COLORS.up, style: 'dotted', label: 'Take Profit' },
     { kind: 'marker', time: d(24), position: 'aboveBar', shape: 'circle' },
     { kind: 'marker', time: d(32), position: 'belowBar', shape: 'circle' },
+    { kind: 'marker', time: d(34), position: 'belowBar', shape: 'arrowUp', text: 'Compra' },
   ],
 };
