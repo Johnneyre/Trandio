@@ -59,7 +59,7 @@
   {@html `<script type="application/ld+json">${patternsJsonLd}</script>`}
 </svelte:head>
 
-<div class="mx-auto flex max-w-[1560px] flex-col gap-6 px-6 py-6 lg:px-10">
+<div class="mx-auto flex min-h-dvh max-w-[1560px] flex-col gap-6 px-6 py-6 lg:px-10">
   <header class="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
     <div>
       <h1 class="text-2xl font-semibold tracking-[-0.01em]">Trandio</h1>
@@ -133,4 +133,8 @@
       <Playground />
     </main>
   {/if}
+
+  <footer class="mt-auto border-t border-border pt-5 text-right text-[13px] text-ink-3">
+    <p>Built by Johnneyre</p>
+  </footer>
 </div>
