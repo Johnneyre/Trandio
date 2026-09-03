@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://trandio-six.vercel.app/sitemap.xml
+Sitemap: https://trandio.app/sitemap.xml

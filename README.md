@@ -3,7 +3,7 @@
   <h1>Trandio</h1>
   <p><strong>Diccionario interactivo de patrones chartistas con gráficos de velas, y un playground para detectarlos en tus propios datos.</strong></p>
   <p>
-    <a href="https://trandio-six.vercel.app/"><img src="https://img.shields.io/badge/demo-trandio--six.vercel.app-863bff" alt="Demo"></a>
+    <a href="https://trandio.app/"><img src="https://img.shields.io/badge/demo-trandio.app-863bff" alt="Demo"></a>
     <img src="https://img.shields.io/badge/Svelte-5-ff3e00?logo=svelte&logoColor=white" alt="Svelte 5">
     <img src="https://img.shields.io/badge/TypeScript-6-3178c6?logo=typescript&logoColor=white" alt="TypeScript">
     <img src="https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white" alt="Vite">

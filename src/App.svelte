@@ -39,7 +39,7 @@
     rango: PATTERNS.filter((p) => p.trends.includes("rango")).length,
   };
 
-  const SITE_URL = "https://trandio-six.vercel.app/";
+  const SITE_URL = "https://trandio.app/";
   const patternsJsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "DefinedTermSet",
