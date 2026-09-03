@@ -135,6 +135,6 @@
   {/if}
 
   <footer class="mt-auto border-t border-border pt-5 text-right text-[13px] text-ink-3">
-    <p>Built by Johnneyre</p>
+    <p>Built</p>
   </footer>
 </div>
