@@ -137,7 +137,7 @@
 
 {#if spec === null}
   <section
-    class="grid min-h-[clamp(480px,calc(100dvh-190px),900px)] place-items-center rounded-lg border px-6 py-10 transition-colors {dragging
+    class="grid min-h-[480px] place-items-center rounded-lg border px-6 py-10 transition-colors lg:min-h-0 lg:flex-1 {dragging
       ? 'border-accent bg-chip-accent/40'
       : 'border-transparent'}"
     aria-label="Cargar datos"
@@ -180,8 +180,10 @@
     </div>
   </section>
 {:else if parsed?.ok}
-  <div class="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-    <aside class="flex min-h-0 flex-col max-lg:order-2 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-226px)]">
+  <div
+    class="grid items-start gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[280px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch"
+  >
+    <aside class="flex min-h-0 flex-col max-lg:order-2">
       <div class="flex shrink-0 items-center justify-between gap-2">
         <h2 class="text-lg font-semibold tracking-[-0.01em] text-ink">Patrones detectados</h2>
         <div class="flex items-center gap-0.5">
@@ -267,13 +269,13 @@
       </section>
     </aside>
 
-    <section class="flex min-w-0 flex-col gap-4 max-lg:order-1">
-      <div class="relative">
+    <section class="flex min-w-0 flex-col gap-4 max-lg:order-1 lg:min-h-0">
+      <div class="relative lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
         <Chart
           {spec}
           label={chartLabel}
           animate={animateUpload}
-          class="h-[clamp(520px,calc(100dvh-230px),1000px)]"
+          class="h-[clamp(520px,calc(100dvh-230px),1000px)] lg:h-auto lg:min-h-[320px] lg:flex-1"
         />
         {#if timeframes.length > 1}
           <select

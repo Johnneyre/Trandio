@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Footer from "$lib/components/Footer.svelte";
   import PatternDetail from "$lib/components/PatternDetail.svelte";
   import PatternList from "$lib/components/PatternList.svelte";
   import Playground from "$lib/components/Playground.svelte";
@@ -59,7 +60,7 @@
   {@html `<script type="application/ld+json">${patternsJsonLd}</script>`}
 </svelte:head>
 
-<div class="mx-auto flex min-h-dvh max-w-[1560px] flex-col gap-6 px-6 py-6 lg:px-10">
+<div class="mx-auto flex min-h-dvh max-w-[1560px] flex-col gap-6 px-6 py-6 lg:h-dvh lg:px-10">
   <header class="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
     <div>
       <h1 class="text-2xl font-semibold tracking-[-0.01em]">Trandio</h1>
@@ -100,8 +101,10 @@
   </header>
 
   {#if view === "patrones"}
-    <main class="grid items-start gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-      <aside class="flex flex-col gap-3 max-lg:order-2 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-226px)]">
+    <main
+      class="grid items-start gap-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch"
+    >
+      <aside class="flex flex-col gap-3 max-lg:order-2 lg:min-h-0">
         <input
           type="search"
           placeholder="Buscar patrón…"
@@ -124,17 +127,15 @@
         </div>
       </aside>
 
-      <section class="flex min-w-0 scroll-mt-4 flex-col gap-5 max-lg:order-1" bind:this={detailEl}>
+      <section class="flex min-w-0 scroll-mt-4 flex-col gap-5 max-lg:order-1 lg:min-h-0" bind:this={detailEl}>
         <PatternDetail pattern={selected} />
       </section>
     </main>
   {:else}
-    <main>
+    <main class="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
       <Playground />
     </main>
   {/if}
 
-  <footer class="mt-auto border-t border-border pt-5 text-right text-[13px] text-ink-3">
-    <p>Built by Johnneyre</p>
-  </footer>
+  <Footer />
 </div>

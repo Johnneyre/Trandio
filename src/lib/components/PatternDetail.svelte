@@ -34,12 +34,19 @@
 </script>
 
 {#if pattern === null || spec === null}
-  <div class="grid h-[clamp(440px,60vh,760px)] place-items-center rounded-lg border border-border">
+  <div
+    class="grid h-[clamp(440px,60vh,760px)] place-items-center rounded-lg border border-border lg:h-auto lg:min-h-[320px] lg:flex-1"
+  >
     <p class="text-base text-ink-3">Selecciona un patrón para verlo en el gráfico.</p>
   </div>
 {:else}
-  <div class="relative">
-    <Chart {spec} label={chartLabel} animate />
+  <div class="relative lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
+    <Chart
+      {spec}
+      label={chartLabel}
+      animate
+      class="h-[clamp(440px,60vh,760px)] lg:h-auto lg:min-h-[320px] lg:flex-1"
+    />
     {#if pattern.variants}
       <div
         class="absolute top-3 left-3 z-10 flex gap-0.5 rounded-lg border border-border bg-bg/90 p-0.5"
